@@ -20,15 +20,6 @@ script_input() {
   fi | $DIR/resources_by_region.awk
 }
 
-script_output() {
-  local region="$1"
-  if [ ! -z "${FLAGS_jq}" ]; then
-    cat -
-  else
-    cat - | awk --assign region=$region '{ print region, $0 }'
-  fi
-}
-
 extract() {
   local resource_type="$1"
   local region="${2:-}"
