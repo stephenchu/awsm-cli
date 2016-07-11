@@ -29,10 +29,10 @@ extract() {
   else
     awk "
       {
-        if (\$1 == \"$region\" && \$2 == \"$resource_type\") {
+        if (\$1 == \"$region\" && \$2 ~ /^$resource_type\$/) {
           # Skip field #1 and #2
           print substr(\$0, index(\$0, \$3))
         }
-      }"
+      }" | paste --serial --delimiter ' ' -
   fi
 }
