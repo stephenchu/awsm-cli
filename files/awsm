@@ -42,7 +42,7 @@ shift $((OPTIND -1))
 command="$1"
 shift
 case "$command" in
-  autoscaling|ec2)
+  autoscaling|cloudformation|ec2)
     subcommand="$1"
     shift
     exec "${DIR}/awsm-cli/${command}-${subcommand}.sh" $@
