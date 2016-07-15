@@ -9,7 +9,7 @@
     for (i = 2; i <= NF; i++) {
       if ($i ~ /^arn:/) {
         split($i, arn_parts, /:/)
-        aws_service = arn_parts[3]
+        aws_service             = arn_parts[3]
         aws_resource_identifier = arn_parts[6]
 
         switch(aws_service) {
