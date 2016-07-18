@@ -28,19 +28,31 @@ Examples:
 EOS
 )
 
-while getopts ":h" opt; do
-  case $opt in
-    h)
+while true; do
+  case "${1:-}" in
+    -h | --help)
       echo "$USAGE" >&2
       exit 1
       ;;
-    \?)
-      echo "Invalid Option: -$OPTARG" 1>&2
+    --?)
+      echo "Invalid Option: --$1" 1>&2
       exit 1
+      ;;
+    -?)
+      echo "Invalid Option: -$1" 1>&2
+      exit 1
+      ;;
+    -*)
+      split=$1
+      shift
+      set -- $(echo "$split" | cut -c 2- | sed 's/./-& /g') "$@"
+      continue
+      ;;
+    *)
+      break
       ;;
   esac
 done
-shift $((OPTIND -1))
 
 command="${1:-}"
 subcommand="${2:-}"
