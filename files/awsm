@@ -3,6 +3,8 @@
 set -euo pipefail
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $DIR/awsm-cli/_common_logging.sh
+
 USAGE=$(cat <<-EOS
 AWSM (read: awesome) Command Line Wrapper
 
@@ -56,15 +58,9 @@ done
 
 command="${1:-}"
 subcommand="${2:-}"
-[ ! -z "$command" ] && [ ! -z "$subcommand" ] || {
-  printf "ERROR: Both \`command\` and \`subcommand\` are required. See usage.\n\n$USAGE\n" >&2
-  exit 1
-}
+[ ! -z "$command" ] && [ ! -z "$subcommand" ]      || die "ERROR: Both \`command\` and \`subcommand\` are required. See usage.\n\n$USAGE"
+[ -f "$DIR/awsm-cli/${command}-${subcommand}.sh" ] || die "ERROR: AWSM does not yet support command \`$command\` and subcommand \`$subcommand\`."
 
-[ -f "$DIR/awsm-cli/${command}-${subcommand}.sh" ] || {
-  printf "ERROR: AWSM does not yet support command \`$command\` and subcommand \`$subcommand\`.\n" >&2
-  exit 1
-}
 shift 2
 
 exec "$DIR/awsm-cli/${command}-${subcommand}.sh" $@
