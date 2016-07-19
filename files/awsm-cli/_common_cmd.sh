@@ -10,3 +10,9 @@ aws() {
   eval `which aws` $cmd
 }
 
+jq() {
+  if [ "${AWSM_LOG_JQ+defined}" ]; then
+    yellow " [JQ] jq $(printf "%s " "$@")" >&2
+  fi
+  `which jq` "$@"
+}
