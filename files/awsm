@@ -63,4 +63,4 @@ subcommand="${2:-}"
 
 shift 2
 
-exec "$DIR/awsm-cli/${command}-${subcommand}.sh" $@
+exec "$DIR/awsm-cli/${command}-${subcommand}.sh" "$@"
