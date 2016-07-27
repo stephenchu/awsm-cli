@@ -22,6 +22,6 @@ output_jq() {
   jq -C -r ".Regions[] | ${FLAGS_jq:-$default}"
 }
 
-INPUT=$(script_input "FLAGS_regions")
+INPUT=$(script_input_with_region "FLAGS_regions")
 aws ec2 --region us-west-2 describe-regions $(filters "$INPUT") \
   | output_jq

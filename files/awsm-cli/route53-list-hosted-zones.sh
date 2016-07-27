@@ -13,10 +13,10 @@ source $DIR/_common_all.sh
 output_jq() {
   local default=$(cat <<EOS
     [
+      .Id,
       .Name,
       (.ResourceRecordSetCount | tostring),
       (if .Config.PrivateZone then "Private" else "Public" end),
-      .Id,
       .Config.Commend
     ] | join("\t")
 EOS

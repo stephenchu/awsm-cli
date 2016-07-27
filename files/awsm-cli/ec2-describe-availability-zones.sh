@@ -29,7 +29,7 @@ output_jq() {
   jq -C -r --arg region $region ".AvailabilityZones[] | ${FLAGS_jq:-$default}"
 }
 
-INPUT=$(script_input)
+INPUT=$(script_input_with_region)
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region describe-availability-zones $(filters $region) \
     | output_jq $region

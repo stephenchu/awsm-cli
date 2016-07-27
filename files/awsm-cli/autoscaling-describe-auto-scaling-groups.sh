@@ -25,7 +25,7 @@ jq_filters() {
 
   [ -z "${FLAGS_filter_vpc_id:-$(extract "vpc" $region <<< "$input")}" ] || {
     local vpc_ids="${FLAGS_filter_vpc_id:-$(extract "vpc" $region <<< "$input")}"
-    local subnet_ids=$(extract "subnet" $region <<< "$($DIR/ec2-describe-subnets.sh -r $region -v "$vpc_ids" < /dev/null | script_input)")
+    local subnet_ids=$(extract "subnet" $region <<< "$($DIR/ec2-describe-subnets.sh -r $region -v "$vpc_ids" < /dev/null | script_input_with_region)")
 
     filters="$filters | ($(echo "$subnet_ids" | xargs jo -a)) as \$vpc_subnets | map(select(  (.VPCZoneIdentifier | split(\",\")) as \$asg_subnets | ( \$vpc_subnets | contains(\$asg_subnets) )  ))"
   }
@@ -56,7 +56,7 @@ EOS
     | jq -C -r --arg region $region ".[] | ${FLAGS_jq:-$default}"
 }
 
-INPUT=$(script_input)
+INPUT=$(script_input_with_region)
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws autoscaling --region $region describe-auto-scaling-groups $(auto_scaling_group_names) \
     | output_jq $region

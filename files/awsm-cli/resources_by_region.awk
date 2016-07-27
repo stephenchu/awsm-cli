@@ -21,6 +21,9 @@
 
             results[region, aws_service] = results[region, aws_service] " " stack_name
         }
+      } else if ($i ~ /^\/hostedzone/) {
+        len = split($i, hostedzone_identifier_parts, /\\/)
+        results["hostedzone"] = results["hostedzone"] " " hostedzone_identifier_parts[len]
       } else {
         split($i, parts, /-/)
         aws_resource_type = parts[1]

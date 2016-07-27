@@ -26,7 +26,7 @@ output_jq() {
   jq -r '.Output' | sed 's/\\n/\n/g' | sed 's/\\r/\r/g'
 }
 
-INPUT=$(script_input)
+INPUT=$(script_input_with_region)
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region get-console-output $(instance_id $region "$INPUT") \
     | output_jq

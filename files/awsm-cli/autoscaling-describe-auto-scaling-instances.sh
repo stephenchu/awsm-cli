@@ -38,7 +38,7 @@ EOS
   jq -C -r --arg region $region ".AutoScalingInstances[] | ${FLAGS_jq:-$default}"
 }
 
-INPUT=$(script_input)
+INPUT=$(script_input_with_region)
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws autoscaling --region $region describe-auto-scaling-instances $(instance_ids $region "$INPUT") \
     | output_jq $region

@@ -54,7 +54,7 @@ EOS
   jq -C -r --arg region $region ".Reservations[].Instances[] | ${FLAGS_jq:-$default}"
 }
 
-INPUT=$(script_input)
+INPUT=$(script_input_with_region)
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region describe-instances $(filters $region "$INPUT") \
     | output_jq $region

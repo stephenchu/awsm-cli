@@ -43,7 +43,7 @@ EOS
   jq -r --arg region $region ".StackResources[] | ${FLAGS_jq:-$default}"
 }
 
-INPUT=$(script_input)
+INPUT=$(script_input_with_region)
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws cloudformation --region $region describe-stack-resources $(filter_stack_name $region "$INPUT") \
     | output_jq $region
