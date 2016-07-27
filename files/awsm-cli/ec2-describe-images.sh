@@ -15,6 +15,7 @@ DEFINE_string   'jq' '' 'Output \`jq\` filter' 'j'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
 FLAGS "$@" || exit $?
 eval set -- "${FLAGS_ARGV}"
+[ $FLAGS_help -eq $FLAGS_FALSE ] || { exit 1; }
 
 set -euo pipefail
 source $DIR/_common_all.sh
