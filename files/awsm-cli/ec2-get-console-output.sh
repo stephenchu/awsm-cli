@@ -6,6 +6,7 @@ DEFINE_string  'region' '' 'A space-delimited list of region names to filter. e.
 DEFINE_string  'filter-instance-id' '' 'EC2 instance id' 'i'
 DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
+DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
 eval set -- "${FLAGS_ARGV}"
 [ $FLAGS_help -eq $FLAGS_FALSE ] || { exit 1; }

@@ -13,6 +13,7 @@ DEFINE_boolean 'filter-is-public' $FLAGS_FALSE 'Filter for only public images' '
 DEFINE_boolean 'filter-is-private' $FLAGS_FALSE 'Filter for only private images' ''
 DEFINE_string   'jq' '' 'Output \`jq\` filter' 'j'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
+DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
 eval set -- "${FLAGS_ARGV}"
 [ $FLAGS_help -eq $FLAGS_FALSE ] || { exit 1; }

@@ -7,6 +7,7 @@ DEFINE_string  'filters' '' 'The raw \`--filters\` attribute used with the AWS c
 DEFINE_string  'filter-vpc-ids' '' 'VPC Id' 'v'
 DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
+DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
 eval set -- "${FLAGS_ARGV}"
 [ $FLAGS_help -eq $FLAGS_FALSE ] || { exit 1; }

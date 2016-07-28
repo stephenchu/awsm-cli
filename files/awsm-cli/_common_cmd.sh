@@ -11,7 +11,7 @@ aws() {
 }
 
 jq() {
-  if [ "${AWSM_LOG_JQ+defined}" ]; then
+  if [ "${AWSM_LOG_JQ+defined}" ] || [ $FLAGS_log_jq -eq $FLAGS_TRUE ]; then
     yellow " [JQ] jq $(printf "%s " "$@")" >&2
   fi
   `which jq` "$@"

@@ -4,6 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $DIR/vendor/shflags/src/shflags
 DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Log aws-cli API calls' ''
+DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
 eval set -- "${FLAGS_ARGV}"
 [ $FLAGS_help -eq $FLAGS_FALSE ] || { exit 1; }
