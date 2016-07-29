@@ -38,6 +38,7 @@ output_jq() {
     (if .PrivateDnsName == "" then null else .PrivateDnsName end) as \$private_dns_name |
     [
       \$region,
+      (.Tags | tag_value("Name")) // "n/a", 
       .InstanceId,
       .Placement.AvailabilityZone,
       .InstanceType,
