@@ -19,7 +19,6 @@ auto_scaling_group_names() {
   option_if_not_blank "$FLAGS_auto_scaling_group_names" "--auto-scaling-group-names $FLAGS_auto_scaling_group_names"
 }
 
-
 jq_filters() {
   local region="$1"
   local input="$2"
@@ -29,9 +28,9 @@ jq_filters() {
     local vpc_ids="${FLAGS_filter_vpc_id:-$(extract "vpc" $region <<< "$input")}"
     local subnet_ids=$(extract "subnet" $region <<< "$($DIR/ec2-describe-subnets.sh -r $region -v "$vpc_ids" < /dev/null | script_input_with_region)")
 
-    filters="$filters | ($(echo "$subnet_ids" | xargs jo -a)) as \$vpc_subnets | map(select(  (.VPCZoneIdentifier | split(\",\")) as \$asg_subnets | ( \$vpc_subnets | contains(\$asg_subnets) )  ))"
+    filters="$filters | ($(json.to_array <<< "$subnet_ids")) as \$vpc_subnets | map(select(  (.VPCZoneIdentifier | split(\",\")) as \$asg_subnets | ( \$vpc_subnets | contains(\$asg_subnets) )  ))"
   }
-  [ -z "$(extract "subnet" $region <<< "$input")" ] || filters="$filters | ($(extract "subnet" $region <<< "$input" | xargs jo -a)) as \$vpc_subnets | map(select(  (.VPCZoneIdentifier | split(\",\")) as \$asg_subnets | ( \$vpc_subnets | contains(\$asg_subnets) )  ))"
+  [ -z "$(extract "subnet" $region <<< "$input")" ] || filters="$filters | ($(extract "subnet" $region <<< "$input" | json.to_array)) as \$vpc_subnets | map(select(  (.VPCZoneIdentifier | split(\",\")) as \$asg_subnets | ( \$vpc_subnets | contains(\$asg_subnets) )  ))"
 
   option_if_not_blank "$filters" "$filters"
 }
