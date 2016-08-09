@@ -22,7 +22,7 @@ filters() {
   [ -z "${FLAGS_filters}" ]           || filters="$filters $FLAGS_filters"
   [ -z "${FLAGS_filter_zone_names}" ] || filters="$filters Name=zone-name,Values=${FLAGS_filter_zone_names}"
 
-  option_if_not_blank "$filters" "--filters ${filters}"
+  echo_if_not_blank "$filters" "--filters ${filters}"
 }
 
 output_jq() {

@@ -16,7 +16,7 @@ source $DIR/_common_all.sh
 filters() {
   local input="$1"
 
-  option_if_not_blank "${FLAGS_regions:-$(extract "region" <<< "$INPUT")}" "--region-names ${FLAGS_regions:-$(extract "region" <<< "$INPUT")}"
+  echo_if_not_blank "${FLAGS_regions:-$(extract "region" <<< "$INPUT")}" "--region-names ${FLAGS_regions:-$(extract "region" <<< "$INPUT")}"
 }
 
 output_jq() {

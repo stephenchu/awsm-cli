@@ -25,7 +25,7 @@ filters() {
   [ -z "${FLAGS_filter_vpc_id:-$(extract "vpc" $region <<< "$input")}" ] || filters="$filters Name=vpc-id,Values=$(echo -n "${FLAGS_filter_vpc_id:-$(extract "vpc" $region <<< "$input")}" | string.join ",")"
   [ -z "${FLAGS_filter_subnet_ids:-$(extract "subnet" $region <<< "$input")}" ] || filters="$filters Name=subnet-id,Values=$(echo -n "${FLAGS_filter_subnet_ids:-$(extract "subnet" $region <<< "$input")}" | string.join ",")"
 
-  option_if_not_blank "$filters" "--filters ${filters}"
+  echo_if_not_blank "$filters" "--filters ${filters}"
 }
 
 output_jq() {

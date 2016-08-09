@@ -36,7 +36,7 @@ filters() {
   }                                                                             || filters="$filters Name=image-type,Values=$(filter_image_type | string.join ",")"
   [ -z "${FLAGS_filter_image_ids:-$(extract "a[krm]i" $region <<< "$input")}" ] || filters="$filters Name=image-id,Values=$(echo -n "${FLAGS_filter_image_ids:-$(extract "a[krm]i" $region <<< "$input")}" | string.join ",")"
 
-  option_if_not_blank "$filters" "--filters ${filters}"
+  echo_if_not_blank "$filters" "--filters ${filters}"
 }
 
 filter_image_type() {

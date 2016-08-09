@@ -21,7 +21,7 @@ instance_id() {
 
   [ -z "${FLAGS_filter_instance_id:-$(extract "i" $region <<< "$input")}" ] || filters="$filters --instance-id ${FLAGS_filter_instance_id:-$(extract "i" $region <<< "$input" | awk '{ print $1 }')}"
 
-  option_if_not_blank "$filters" "$filters"
+  echo_if_not_blank "$filters" "$filters"
 }
 
 output_jq() {

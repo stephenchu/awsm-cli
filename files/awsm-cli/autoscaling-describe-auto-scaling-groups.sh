@@ -16,7 +16,7 @@ set -euo pipefail
 source $DIR/_common_all.sh
 
 auto_scaling_group_names() {
-  option_if_not_blank "$FLAGS_auto_scaling_group_names" "--auto-scaling-group-names $FLAGS_auto_scaling_group_names"
+  echo_if_not_blank "$FLAGS_auto_scaling_group_names" "--auto-scaling-group-names $FLAGS_auto_scaling_group_names"
 }
 
 jq_filters() {
@@ -32,7 +32,7 @@ jq_filters() {
   }
   [ -z "$(extract "subnet" $region <<< "$input")" ] || filters="$filters | ($(extract "subnet" $region <<< "$input" | json.to_array)) as \$vpc_subnets | map(select(  (.VPCZoneIdentifier | split(\",\")) as \$asg_subnets | ( \$vpc_subnets | contains(\$asg_subnets) )  ))"
 
-  option_if_not_blank "$filters" "$filters"
+  echo_if_not_blank "$filters" "$filters"
 }
 
 output_jq() {

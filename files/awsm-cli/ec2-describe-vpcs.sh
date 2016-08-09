@@ -23,7 +23,7 @@ filters() {
   [ -z "${FLAGS_filters}" ]                                               || filters="$filters $FLAGS_filters"
   [ -z "${FLAGS_filter_vpc_ids:-$(extract "vpc" $region <<< "$input")}" ] || filters="$filters Name=vpc-id,Values=$(string.join "," <<< "${FLAGS_filter_vpc_ids:-$(extract "vpc" $region <<< "$input")}")"
 
-  option_if_not_blank "$filters" "--filters ${filters}"
+  echo_if_not_blank "$filters" "--filters ${filters}"
 }
 
 output_jq() {

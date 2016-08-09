@@ -19,7 +19,7 @@ instance_ids() {
   local region="$1"
   local input="$2"
 
-  option_if_not_blank "${FLAGS_instance_ids:-$(extract "i" $region <<< "$input")}" "--instance-ids ${FLAGS_instance_ids:-$(extract "i" $region <<< "$input")}"
+  echo_if_not_blank "${FLAGS_instance_ids:-$(extract "i" $region <<< "$input")}" "--instance-ids ${FLAGS_instance_ids:-$(extract "i" $region <<< "$input")}"
 }
 
 output_jq() {

@@ -15,7 +15,7 @@ source $DIR/_common_all.sh
 
 hosted_zone_id() {
   local hosted_zone_id="$1"
-  option_if_not_blank "$hosted_zone_id" "--hosted-zone-id $hosted_zone_id"
+  echo_if_not_blank "$hosted_zone_id" "--hosted-zone-id $hosted_zone_id"
 }
 
 output_jq() {
@@ -26,7 +26,7 @@ output_jq() {
       .Name,
       .Type,
       (.TTL // empty | tostring),
-      (.ResourceRecords | values | map(.Value) | values | join("\t"))
+      (.ResourceRecords | values | map(.Value) | values | join(","))
     ] | sort_by(.Name) | join("\t")
 EOS
   )

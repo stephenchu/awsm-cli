@@ -24,7 +24,7 @@ filter_stack_name() {
   [ -z "$stack_name_or_arn" ] || filters="--stack-name '$(awk '{ print $1 }' <<< "$stack_name_or_arn")'"
   [ -z "$stack_name_or_arn" ] && [ ! -z "$FLAGS_physical_resource_id" ] && filters="--physical-resource-id ${FLAGS_physical_resource_id}"
 
-  option_if_not_blank "$filters" "$filters"
+  echo_if_not_blank "$filters" "$filters"
 }
 
 output_jq() {

@@ -13,7 +13,7 @@ script_input_with_region() {
     if [ "${!region_variable_name}+defined" ]; then
       echo "${!region_variable_name}" | xargs printf "%s\n"
     else
-      $DIR/ec2-describe-regions.sh $(option_if_not_blank "${!region_variable_name}" "--region \"${!region_variable_name}\"")
+      $DIR/ec2-describe-regions.sh $(echo_if_not_blank "${!region_variable_name}" "--region \"${!region_variable_name}\"")
     fi
   else
     cat /dev/stdin
@@ -24,7 +24,7 @@ script_input_with_hosted_zone_id() {
   local hosted_zone_id_variable_name="${1:-"FLAGS_hosted_zone_id"}"
 
   if [ -t 0 ]; then
-    $DIR/route53-list-hosted-zones.sh $(option_if_not_blank "${!hosted_zone_id_variable_name}" "--hosted-zone-id \"${!hosted_zone_id_variable_name}\"")
+    $DIR/route53-list-hosted-zones.sh $(echo_if_not_blank "${!hosted_zone_id_variable_name}" "--hosted-zone-id \"${!hosted_zone_id_variable_name}\"")
   else
     cat /dev/stdin
   fi | $DIR/resources_by_hosted_zone_id.awk

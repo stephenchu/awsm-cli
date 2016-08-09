@@ -22,7 +22,7 @@ stack_name() {
 
   [ -z "${FLAGS_stack_name_or_arn:-$(extract "cloudformation" $region <<< "$input")}" ] || filters="--stack-name ${FLAGS_stack_name_or_arn:-$(extract "cloudformation" $region <<< "$input")}"
 
-  option_if_not_blank "$filters" "$filters"
+  echo_if_not_blank "$filters" "$filters"
 }
 
 output_jq() {
