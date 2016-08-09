@@ -2,14 +2,14 @@
 
 set -euo pipefail
 
-debug() {
+log.debug() {
   local message="${1:-}"
   if [ ${FLAGS_log_debug:-1} -eq $FLAGS_TRUE ]; then
     ansi.yellow "[DEBUG] $message" >&2
   fi
 }
 
-info() {
+log.info() {
   local message="${1:-}"
   if [ ${FLAGS_log_info:-$FLAGS_TRUE} -eq $FLAGS_TRUE ]; then
     ansi.green "[INFO] $message" >&2
@@ -18,7 +18,7 @@ info() {
   fi
 }
 
-warn() {
+log.warn() {
   local message="${1:-}"
   anis.red "[WARN] $message" >&2
 }
