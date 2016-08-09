@@ -19,7 +19,7 @@ output_jq() {
       .Name,
       (.ResourceRecordSetCount | tostring),
       (if .Config.PrivateZone then "Private" else "Public" end),
-      .Config.Commend
+      .Config.Comment
     ] | join("\t")
 EOS
   )
