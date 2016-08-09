@@ -51,8 +51,10 @@ extract() {
       }
 
       {
-        if (aws_resource_without_region(\$1) || aws_resource_with_region(\$1, \$2)) {
+        if (aws_resource_without_region(\$1)) {
           print skip_fields(2)
+        } else if (aws_resource_with_region(\$1, \$2)) {
+          print skip_fields(3)
         }
       }" | paste --serial --delimiter ' ' -
   fi
