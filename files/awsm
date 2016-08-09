@@ -7,12 +7,10 @@ source $DIR/awsm-cli/_common_logging.sh
 
 USAGE=$(cat <<-EOS
 AWSM (read: awesome) Command Line Wrapper
+  An awesome wrapper for AWS CLI, written in Bash, that allows usages of *nix pipes to chain multiple AWS CLI commands together for better user experiences.
 
 Usage:
   $ awsm <command> <subcommand> [ ... ]
-
-Description:
-  An awesome wrapper for AWS CLI, written in Bash, that allows usages of *nix pipes to chain multiple AWS CLI commands together for better user experiences.
 
 Examples:
   $ awsm ec2 describe-regions --regions "us-west-2 us-east-1"
@@ -56,11 +54,16 @@ while true; do
   esac
 done
 
+die() {
+  local message="$1"
+  printf "$message\n" >&2
+  exit 1
+}
+
 command="${1:-}"
 subcommand="${2:-}"
-[ ! -z "$command" ] && [ ! -z "$subcommand" ]      || die "ERROR: Both \`command\` and \`subcommand\` are required. See usage.\n\n$USAGE"
-[ -f "$DIR/awsm-cli/${command}-${subcommand}.sh" ] || die "ERROR: AWSM does not yet support command \`$command\` and subcommand \`$subcommand\`."
-
+[ ! -z "$command" ] && [ ! -z "$subcommand" ]      || die "$(ansi.red "ERROR"): Both \`command\` and \`subcommand\` are required. See usage.\n\n$USAGE"
+[ -f "$DIR/awsm-cli/${command}-${subcommand}.sh" ] || die "$(ansi.red "ERROR"): AWSM does not yet support command \`$command\` and subcommand \`$subcommand\`."
 shift 2
 
 exec "$DIR/awsm-cli/${command}-${subcommand}.sh" "$@"

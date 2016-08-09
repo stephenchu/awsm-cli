@@ -2,24 +2,17 @@
 
 set -euo pipefail
 
-die() {
-  local message="$1"
-  printf "$message\n" >&2
-  exit 1
-}
-
-
 debug() {
   local message="${1:-}"
   if [ ${FLAGS_log_debug:-1} -eq $FLAGS_TRUE ]; then
-    yellow "[DEBUG] $message" >&2
+    ansi.yellow "[DEBUG] $message" >&2
   fi
 }
 
 info() {
   local message="${1:-}"
   if [ ${FLAGS_log_info:-$FLAGS_TRUE} -eq $FLAGS_TRUE ]; then
-    green "[INFO] $message" >&2
+    ansi.green "[INFO] $message" >&2
   else
     echo "$message" >&2
   fi
@@ -27,5 +20,14 @@ info() {
 
 warn() {
   local message="${1:-}"
-  red "[WARN] $message" >&2
+  anis.red "[WARN] $message" >&2
 }
+
+ansi.black()   { echo "$(tput setaf 0)$*$(tput sgr0)"; }
+ansi.red()     { echo "$(tput setaf 1)$*$(tput sgr0)"; }
+ansi.green()   { echo "$(tput setaf 2)$*$(tput sgr0)"; }
+ansi.yellow()  { echo "$(tput setaf 3)$*$(tput sgr0)"; }
+ansi.blue()    { echo "$(tput setaf 4)$*$(tput sgr0)"; }
+ansi.magenta() { echo "$(tput setaf 5)$*$(tput sgr0)"; }
+ansi.cyan()    { echo "$(tput setaf 6)$*$(tput sgr0)"; }
+ansi.white()   { echo "$(tput setaf 7)$*$(tput sgr0)"; }
