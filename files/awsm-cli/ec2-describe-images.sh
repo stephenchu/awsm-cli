@@ -33,8 +33,8 @@ filters() {
     [ $FLAGS_filter_ami -eq $FLAGS_FALSE ] && \
     [ $FLAGS_filter_aki -eq $FLAGS_FALSE ] && \
     [ $FLAGS_filter_ari -eq $FLAGS_FALSE ]
-  }                                                                             || filters="$filters Name=image-type,Values=$(filter_image_type | join_str ",")"
-  [ -z "${FLAGS_filter_image_ids:-$(extract "a[krm]i" $region <<< "$input")}" ] || filters="$filters Name=image-id,Values=$(echo -n "${FLAGS_filter_image_ids:-$(extract "a[krm]i" $region <<< "$input")}" | join_str ",")"
+  }                                                                             || filters="$filters Name=image-type,Values=$(filter_image_type | string.join ",")"
+  [ -z "${FLAGS_filter_image_ids:-$(extract "a[krm]i" $region <<< "$input")}" ] || filters="$filters Name=image-id,Values=$(echo -n "${FLAGS_filter_image_ids:-$(extract "a[krm]i" $region <<< "$input")}" | string.join ",")"
 
   option_if_not_blank "$filters" "--filters ${filters}"
 }

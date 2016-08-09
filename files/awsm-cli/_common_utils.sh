@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ### String Functions
-join_str() {
+string.join() {
   local delimiter="${1:-" "}"
   sed "s/ /${delimiter}/g"
 }
