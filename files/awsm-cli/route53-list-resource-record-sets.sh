@@ -15,7 +15,11 @@ source $DIR/_common_all.sh
 
 hosted_zone_id() {
   local hosted_zone_id="$1"
-  echo_if_not_blank "$hosted_zone_id" "--hosted-zone-id $hosted_zone_id"
+  local filters=""
+
+  [ -z "${FLAGS_hosted_zone_id:-$hosted_zone_id}" ] || filters="$filters ${FLAGS_hosted_zone_id:-$hosted_zone_id}"
+
+  echo_if_not_blank "$filters" "--hosted-zone-id $filters"
 }
 
 output_jq() {

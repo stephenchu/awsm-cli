@@ -3,6 +3,7 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $DIR/vendor/shflags/src/shflags
 DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
+DEFINE_string  'hosted-zone-id' '' 'Route53 hosted zone id' 'z'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Log aws-cli API calls' ''
 DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
@@ -11,6 +12,14 @@ eval set -- "${FLAGS_ARGV}"
 
 set -euo pipefail
 source $DIR/_common_all.sh
+
+jq_filters() {
+  local filters=""
+
+  [ -z "${FLAGS_hosted_zone_id}" ] || filters="$filters | map(select(.Name == ${FLAGS_hosted_zone_id} ))"
+
+  echo_if_not_blank "$filters" "$filters"
+}
 
 output_jq() {
   local default=$(cat <<EOS
@@ -23,7 +32,7 @@ output_jq() {
     ] | join("\t")
 EOS
   )
-  jq -r ".HostedZones | sort_by(.Config.PrivateZone) | .[] | ${FLAGS_jq:-$default}"
+  jq -r ".HostedZones $(jq_filters) | sort_by(.Config.PrivateZone) | .[] | ${FLAGS_jq:-$default}"
 }
 
 headers "HostedZoneId Name ResourceRecordSetCount Public/Private Comment"
