@@ -35,7 +35,7 @@ output_jq() {
       .CreationTime,
       .LastUpdatedTime // "n/a",
       .StackId,
-      .StackStatusReason
+      .StackStatusReason // "n/a"
     ] | sort_by(.CreationTime) | join("\t")
 EOS
   )
