@@ -72,6 +72,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
+headers "Region ImageId State OwnerId Hypervisor VirtualizationType Architecture RootDeviceType Public CreationDate ImageLocation"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region describe-images $(filters $region "$INPUT") \
     | output_jq $region

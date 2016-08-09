@@ -58,6 +58,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
+headers "Region Name InstanceId AvailabilityZone InstanceType State PublicIpAddress PrivateIpAddress PrivateDnsName VpcId ImageId LaunchTime Dimension"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region describe-instances $(filters $region "$INPUT") \
     | output_jq $region

@@ -46,6 +46,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
+headers "Region StackName ResourceStatus ResourceType Timestamp PhysicalResourceId LogicalResourceId"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws cloudformation --region $region describe-stack-resources $(filter_stack_name $region "$INPUT") \
     | output_jq $region

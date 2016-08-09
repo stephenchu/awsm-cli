@@ -44,6 +44,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
+headers "Region StackName StackStatus CreationTime LastUpdatedTime StackId StackStatusReason"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws cloudformation --region $region describe-stacks $(stack_name $region "$INPUT") \
     | output_jq $region

@@ -58,6 +58,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
+headers "Region AutoScalingGroupName LaunchConfigurationName ZoneName VPCZoneIdentifier MinSize MaxSize DesiredCapacity CreatedTime Instances N"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws autoscaling --region $region describe-auto-scaling-groups $(auto_scaling_group_names) \
     | output_jq $region

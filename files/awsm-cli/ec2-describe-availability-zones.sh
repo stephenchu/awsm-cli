@@ -32,6 +32,7 @@ output_jq() {
 }
 
 INPUT=$(script_input_with_region)
+headers "Region ZoneName"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region describe-availability-zones $(filters $region) \
     | output_jq $region

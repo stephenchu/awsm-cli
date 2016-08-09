@@ -35,7 +35,7 @@ extract() {
   local region="${2:-undefined}"
 
   if [ "$resource_type" == "region" ]; then
-    awk "{ print \$1 }" | sort -u
+    awk "/^(us|ap|eu|sa)-/ { print \$1 }" | sort -u
   else
     awk "
       function aws_resource_without_region(field_1) {

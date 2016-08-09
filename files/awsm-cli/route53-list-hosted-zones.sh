@@ -26,5 +26,6 @@ EOS
   jq -r ".HostedZones | sort_by(.Config.PrivateZone) | .[] | ${FLAGS_jq:-$default}"
 }
 
+headers "HostedZoneId Name ResourceRecordSetCount Public/Private Comment"
 aws route53 list-hosted-zones \
   | output_jq

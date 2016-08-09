@@ -1,7 +1,9 @@
 #! /usr/bin/awk -f
 
 {
-  results["hostedzone"] = results["hostedzone"] " " $1
+  if ($1 ~ /^\/hostedzone\//) {
+    results["hostedzone"] = results["hostedzone"] " " $1
+  }
 }
 
 END {

@@ -29,6 +29,7 @@ output_jq() {
 }
 
 INPUT=$(script_input_with_region)
+headers "Output"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region get-console-output $(instance_id $region "$INPUT") \
     | output_jq
