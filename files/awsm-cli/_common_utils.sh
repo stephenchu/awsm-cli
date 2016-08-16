@@ -18,5 +18,3 @@ json.to_array() {
   local field_separator="${2:- }"
   jq --null-input --arg input "$input" --arg separator "$field_separator" '$input | split($separator)'
 }
-
-

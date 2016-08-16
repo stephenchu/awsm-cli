@@ -6,6 +6,7 @@ DEFINE_string  'region' '' 'AWS region(s)' 'r'
 DEFINE_string  'stack-name-or-arn' '' 'Stack name or ARN id' 'a'
 DEFINE_string  'filter-vpc-id' '' 'VPC Id' 'v'
 DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
+define_string  'output-tags' '' 'output any additional tags' 't'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
 DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
@@ -28,6 +29,11 @@ stack_name() {
 output_jq() {
   local region="$1"
   local default=$(cat <<EOS
+    def tag_value(tag_name):
+      . | values | map(
+        select(.Key == tag_name)
+      )[0].Value;
+
     [
       \$region,
       .StackName,
@@ -35,6 +41,7 @@ output_jq() {
       .CreationTime,
       .LastUpdatedTime // "n/a",
       .StackId,
+      $(output.tags "$FLAGS_output_tags"),
       .StackStatusReason // "n/a"
     ] | sort_by(.CreationTime) | join("\t")
 EOS
@@ -44,7 +51,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
-headers "Region StackName StackStatus CreationTime LastUpdatedTime StackId StackStatusReason"
+headers "Region StackName StackStatus CreationTime LastUpdatedTime StackId $(headers.tags "$FLAGS_output_tags") StackStatusReason"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws cloudformation --region $region describe-stacks $(stack_name $region "$INPUT") \
     | output_jq $region

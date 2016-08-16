@@ -6,6 +6,7 @@ DEFINE_string  'region' '' 'AWS region(s)' 'r'
 DEFINE_string  'auto-scaling-group-names' '' 'ASG name(s) to look up' 'a'
 DEFINE_string  'filter-vpc-id' '' 'VPC Id' 'v'
 DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
+DEFINE_string  'output-tags' '' 'Output any additional tags' 't'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
 DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
@@ -38,6 +39,11 @@ jq_filters() {
 output_jq() {
   local region="$1"
   local default=$(cat <<EOS
+    def tag_value(tag_name):
+      . | values | map(
+        select(.Key == tag_name)
+      )[0].Value;
+
     [
       \$region,
       .AutoScalingGroupName,
@@ -48,6 +54,7 @@ output_jq() {
       (.MaxSize | tostring),
       (.DesiredCapacity | tostring),
       .CreatedTime,
+      $(output.tags "$FLAGS_output_tags"),
       (.Instances | map(.InstanceId) | join("\t"))
     ] | join("\t")
 EOS
@@ -58,7 +65,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
-headers "Region AutoScalingGroupName LaunchConfigurationName ZoneName VPCZoneIdentifier MinSize MaxSize DesiredCapacity CreatedTime Instances N"
+headers "Region AutoScalingGroupName LaunchConfigurationName ZoneName VPCZoneIdentifier MinSize MaxSize DesiredCapacity CreatedTime $(headers.tags "$FLAGS_output_tags") Instances..."
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws autoscaling --region $region describe-auto-scaling-groups $(auto_scaling_group_names) \
     | output_jq $region

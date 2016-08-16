@@ -7,6 +7,7 @@ DEFINE_string   'filters' '' 'The raw \`--filters\` attribute used with the AWS 
 DEFINE_string  'filter-vpc-id' '' 'VPC Id' 'v'
 DEFINE_string  'subnet-ids' '' 'Subnet Id' 's'
 DEFINE_string   'jq' '' 'Output \`jq\` filter' 'j'
+DEFINE_string   'output-tags' '' 'Output any additional tags' 't'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
 DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
@@ -43,7 +44,8 @@ output_jq() {
       .SubnetId,
       .CidrBlock,
       .State,
-      (.Tags | tag_value("Name")) // "n/a"
+      $(output.tag "Name"),
+      $(output.tags "$FLAGS_output_tags")
     ] | join("\t")
 EOS
   )
@@ -51,7 +53,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
-headers "Region VpcId AvailabilityZone SubnetId CidrBlock State Name"
+headers "Region VpcId AvailabilityZone SubnetId CidrBlock State $(headers.tag "Name") $(headers.tags "$FLAGS_output_tags")"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region describe-subnets $(filters $region "$INPUT") \
     | output_jq $region

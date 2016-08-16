@@ -3,7 +3,8 @@
 set -euo pipefail
 
 headers() {
-  [ ! -z "$FLAGS_jq" ] || string.join "\t" <<< "$1"
+  local headers_string=$(tr --squeeze " " <<< "$1")
+  [ ! -z "$FLAGS_jq" ] || string.join "\t" <<< "$headers_string"
 }
 
 headers.tags() {
@@ -32,6 +33,7 @@ output.tags() {
 
   echo_if_not_blank "$jq_filters" "$jq_filters"
 }
+output.tag() { output.tags "$@"; }
 
 echo_if_not_blank() {
   [ -z "$1" ] || echo "$2"

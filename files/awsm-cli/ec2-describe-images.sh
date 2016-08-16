@@ -5,13 +5,14 @@ source $DIR/vendor/shflags/src/shflags
 DEFINE_string   'region' '' 'AWS region(s)' 'r'
 DEFINE_string   'filters' '' 'The raw \`--filters\` attribute used with the AWS command' 'f'
 DEFINE_string  'filter-image-ids' '' 'AMI ids' 'v'
-DEFINE_string  'filter-image-type' 'ami' 'Image type. One of "machine" (AMI), "kernel" (AKI), or "ramdisk" (ARI)' 't'
+DEFINE_string  'filter-image-type' 'ami' 'Image type. One of "machine" (AMI), "kernel" (AKI), or "ramdisk" (ARI)' 'y'
 DEFINE_boolean 'filter-ami' $FLAGS_FALSE 'Filter for only AMI results' ''
 DEFINE_boolean 'filter-aki' $FLAGS_FALSE 'Filter for only AKI results' ''
 DEFINE_boolean 'filter-ari' $FLAGS_FALSE 'Filter for only ARI results' ''
 DEFINE_boolean 'filter-is-public' $FLAGS_FALSE 'Filter for only public images' ''
 DEFINE_boolean 'filter-is-private' $FLAGS_FALSE 'Filter for only private images' ''
-DEFINE_string   'jq' '' 'Output \`jq\` filter' 'j'
+DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
+DEFINE_string  'output-tags' '' 'Output any additional tags' 't'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
 DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
@@ -52,6 +53,11 @@ filter_image_type() {
 output_jq() {
   local region="$1"
   local default=$(cat <<EOS
+    def tag_value(tag_name):
+      . | values | map(
+        select(.Key == tag_name)
+      )[0].Value;
+
     (if .Public == "true" then "public" else "private" end) as \$public |
     [
       \$region,
@@ -64,7 +70,8 @@ output_jq() {
       .RootDeviceType,
       \$public,
       .CreationDate,
-      .ImageLocation
+      .ImageLocation,
+      $(output.tags "$FLAGS_output_tags")
     ] | join("\t")
 EOS
   )
@@ -72,7 +79,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
-headers "Region ImageId State OwnerId Hypervisor VirtualizationType Architecture RootDeviceType Public CreationDate ImageLocation"
+headers "Region ImageId State OwnerId Hypervisor VirtualizationType Architecture RootDeviceType Public CreationDate ImageLocation $(headers.tags "$FLAGS_output_tags")"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region describe-images $(filters $region "$INPUT") \
     | output_jq $region
