@@ -8,6 +8,10 @@ string.join() {
   sed "s/ /${delimiter}/g"
 }
 
+string.strip() {
+  xargs <<< "${1}"
+}
+
 ### JSON Functions
 json.to_array() {
   local input=$(cat /dev/stdin)

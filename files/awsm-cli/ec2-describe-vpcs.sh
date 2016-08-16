@@ -6,6 +6,7 @@ DEFINE_string  'region' '' 'A space-delimited list of region names to filter. e.
 DEFINE_string  'filters' '' 'The raw \`--filters\` attribute used with the AWS command' 'f'
 DEFINE_string  'filter-vpc-ids' '' 'VPC Id' 'v'
 DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
+DEFINE_string  'output-tags' '' 'Output any additional tags' 't'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
 DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
@@ -37,7 +38,8 @@ output_jq() {
     [
       \$region,
       .VpcId,
-      (.Tags | tag_value("Name")) // "n/a"
+      (.Tags | tag_value("Name")) // "n/a",
+      $(output.tags "$FLAGS_output_tags")
     ] | join("\t")
 EOS
   )
@@ -46,7 +48,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
-headers "Region VpcId Name"
+headers "Region VpcId $(headers.tag "Name") $(headers.tags "$FLAGS_output_tags")"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region describe-vpcs $(filters $region "$INPUT") \
     | output_jq $region

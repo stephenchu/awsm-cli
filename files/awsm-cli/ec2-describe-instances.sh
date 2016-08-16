@@ -4,6 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $DIR/vendor/shflags/src/shflags
 DEFINE_string  'region' '' 'AWS region' 'r'
 DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
+DEFINE_string  'output-tags' '' 'Output any additional tags' 't'
 DEFINE_string  'filters' '' 'The raw \`--filters\` attribute used with the AWS command' 'f'
 DEFINE_string  'filter-vpc-id' '' 'VPC Id' 'v'
 DEFINE_string  'filter-instance-ids' '' 'EC2 instance ids' 'i'
@@ -38,7 +39,7 @@ output_jq() {
     (if .PrivateDnsName == "" then null else .PrivateDnsName end) as \$private_dns_name |
     [
       \$region,
-      (.Tags | tag_value("Name")) // "n/a", 
+      $(output.tags "Name") // "n/a",
       .InstanceId,
       .Placement.AvailabilityZone,
       .InstanceType,
@@ -49,7 +50,7 @@ output_jq() {
       .VpcId // "n/a",
       .ImageId // "n/a",
       .LaunchTime,
-      (.Tags | tag_value("Dimension"))
+      $(output.tags "$FLAGS_output_tags")
     ] | join("\t")
 EOS
   )
@@ -58,7 +59,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
-headers "Region Name InstanceId AvailabilityZone InstanceType State PublicIpAddress PrivateIpAddress PrivateDnsName VpcId ImageId LaunchTime Dimension"
+headers "Region $(headers.tag "Name") InstanceId AvailabilityZone InstanceType State PublicIpAddress PrivateIpAddress PrivateDnsName VpcId ImageId LaunchTime $(headers.tags "$FLAGS_output_tags")"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region describe-instances $(filters $region "$INPUT") \
     | output_jq $region
