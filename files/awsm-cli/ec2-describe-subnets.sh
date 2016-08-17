@@ -44,7 +44,6 @@ output_jq() {
       .SubnetId,
       .CidrBlock,
       .State,
-      $(output.tag "Name"),
       $(output.tags "$FLAGS_output_tags")
     ] | join("\t")
 EOS
@@ -53,7 +52,7 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
-headers "Region VpcId AvailabilityZone SubnetId CidrBlock State $(headers.tag "Name") $(headers.tags "$FLAGS_output_tags")"
+headers "Region VpcId AvailabilityZone SubnetId CidrBlock State $(headers.tags "$FLAGS_output_tags")"
 for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
   aws ec2 --region $region describe-subnets $(filters $region "$INPUT") \
     | output_jq $region
