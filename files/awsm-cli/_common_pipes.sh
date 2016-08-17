@@ -13,7 +13,7 @@ script_input_with_region() {
     if [ "${!region_variable_name}+defined" ]; then
       echo "${!region_variable_name}" | xargs printf "%s\n"
     else
-      $DIR/ec2-describe-regions.sh $(echo_if_not_blank "${!region_variable_name}" "--region \"${!region_variable_name}\"")
+      $DIR/ec2-describe-regions.sh $(echo_if_not_blank "${!region_variable_name}" "--regions \"${!region_variable_name}\"")
     fi
   else
     cat /dev/stdin
