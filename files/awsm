@@ -55,8 +55,7 @@ while true; do
 done
 
 die() {
-  local message="$1"
-  printf "$message\n" >&2
+  printf "$1\n" >&2
   exit 1
 }
 
