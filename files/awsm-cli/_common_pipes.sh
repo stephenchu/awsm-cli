@@ -37,7 +37,6 @@ extract() {
   if [ "$resource_type" == "region" ]; then
     awk "/^(us|ap|eu|sa)-/ { print \$1 }" | sort -u
   else
-    $DIR/extract_aws_resource_by_type.awk -v resource_type=$resource_type -v region=$region | \
-      paste --serial --delimiter ' ' -
-  fi
+    $DIR/extract_aws_resource_by_type.awk -v resource_type=$resource_type -v region=$region
+  fi | paste --serial --delimiter ' ' -
 }
