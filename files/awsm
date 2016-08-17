@@ -66,7 +66,9 @@ die() {
 
 command="${1:-}"
 subcommand="${2:-}"
-if [ "$command" == "internal" ]; then
+if [ "$command" == "pretty" ]; then
+  exec column -t -s $'\t' -n
+elif [ "$command" == "internal" ]; then
   [ ! -t 0 ]                               || die "$(ansi.red "ERROR"): You must pipe some data into this internal subcommand \`$subcommand\`."
   [ -f "$DIR/awsm-cli/${subcommand}.awk" ] || die "$(ansi.red "ERROR"): Internal subcommand \`$subcommand.awk\` not found."
 
