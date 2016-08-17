@@ -66,7 +66,8 @@ if [ "$command" == "internal" ]; then
   [ ! -t 0 ]                               || die "$(ansi.red "ERROR"): You must pipe some data into this internal subcommand \`$subcommand\`."
   [ -f "$DIR/awsm-cli/${subcommand}.awk" ] || die "$(ansi.red "ERROR"): Internal subcommand \`$subcommand.awk\` not found."
 
-  exec "$DIR/awsm-cli/${subcommand}.awk"
+  shift 2
+  exec "$DIR/awsm-cli/${subcommand}.awk" "$@"
 else
   [ ! -z "$command" ] && [ ! -z "$subcommand" ]      || die "$(ansi.red "ERROR"): Both \`command\` and \`subcommand\` are required. See usage.\n\n$USAGE"
   [ -f "$DIR/awsm-cli/${command}-${subcommand}.sh" ] || die "$(ansi.red "ERROR"): AWSM does not yet support command \`$command\` and subcommand \`$subcommand\`."

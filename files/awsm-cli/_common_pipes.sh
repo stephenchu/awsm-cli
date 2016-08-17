@@ -37,25 +37,7 @@ extract() {
   if [ "$resource_type" == "region" ]; then
     awk "/^(us|ap|eu|sa)-/ { print \$1 }" | sort -u
   else
-    awk "
-      function aws_resource_without_region(field_1) {
-        return (field_1 == \"$resource_type\" && \"$region\" == \"undefined\")
-      }
-
-      function aws_resource_with_region(field_1, field_2) {
-        return (field_1 == \"$region\" && field_2 ~ /^$resource_type\$/)
-      }
-
-      function skip_fields(starting_field_number) {
-        return substr(\$0, index(\$0, \$starting_field_number))
-      }
-
-      {
-        if (aws_resource_without_region(\$1)) {
-          print skip_fields(2)
-        } else if (aws_resource_with_region(\$1, \$2)) {
-          print skip_fields(3)
-        }
-      }" | paste --serial --delimiter ' ' -
+    $DIR/extract_aws_resource_by_type.awk -v resource_type=$resource_type -v region=$region | \
+      paste --serial --delimiter ' ' -
   fi
 }
