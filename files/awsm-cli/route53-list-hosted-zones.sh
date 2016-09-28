@@ -16,7 +16,7 @@ source $DIR/_common_all.sh
 jq_filters() {
   local filters=""
 
-  [ -z "${FLAGS_hosted_zone_id}" ] || filters="$filters | map(select(.Name == ${FLAGS_hosted_zone_id} ))"
+  [ -z "${FLAGS_hosted_zone_id}" ] || filters="$filters | map(select(.Id == \"${FLAGS_hosted_zone_id}\" ))"
 
   echo_if_not_blank "$filters" "$filters"
 }
