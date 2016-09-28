@@ -1,0 +1,23 @@
+AWSM (read: awesome) Command Line Wrapper
+  An awesome wrapper for AWS CLI, written in Bash, that allows usages of *nix pipes to chain multiple AWS CLI commands together for better user experiences.
+
+Usage:
+  $ awsm <command> <subcommand> [ ... ]
+
+Examples:
+  $ awsm ec2 describe-regions --regions "us-west-2 us-east-1"
+  RegionName
+  us-east-1
+  us-west-2
+
+  $ awsm ec2 describe-regions --regions us-west-2 | awsm ec2 describe-availability-zones | column -t
+  Region     ZoneName
+  us-west-2  us-west-2a
+  us-west-2  us-west-2b
+  us-west-2  us-west-2c
+
+  $ awsm ec2 describe-regions --regions ap-south-1 | awsm ec2 describe-vpcs | awsm ec2 describe-subnets | column -t
+  Region      VpcId         AvailabilityZone  SubnetId         CidrBlock       State
+  ap-south-1  vpc-57f3123e  ap-south-1b       subnet-e52d0eaf  172.31.0.0/20   available
+  ap-south-1  vpc-57f3123e  ap-south-1a       subnet-ba6f89d3  172.31.16.0/20  available
+
