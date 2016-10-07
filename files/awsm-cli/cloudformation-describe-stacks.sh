@@ -6,7 +6,7 @@ DEFINE_string  'region' '' 'AWS region(s)' 'r'
 DEFINE_string  'stack-name-or-arn' '' 'Stack name or ARN id' 'a'
 DEFINE_string  'filter-vpc-id' '' 'VPC Id' 'v'
 DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
-define_string  'output-tags' '' 'output any additional tags' 't'
+DEFINE_string  'output-tags' '' 'output any additional tags' 't'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
 DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
 FLAGS "$@" || exit $?
