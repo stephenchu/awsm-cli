@@ -109,7 +109,15 @@ Unix pipes is simply the most intuitive and error-free way in command line to av
 
 ## Supported AWS Subcommands
 
-See [files/awsm-cli/*.sh](files/awsm-cli). Supported subcommands are in the format of `<awscli subcommand>-<action>.sh`.
+Look in [files/awsm-cli/*.sh](files/awsm-cli), or, better yet, run:
+
+```sh
+$ for subcommand in $(awsm _ subcommands | grep -v '_'); do
+  (
+    printf "$subcommand:\n"; awsm _ subcommand-actions -s $subcommand
+  ) | paste -d ' ' -s
+done
+```
 
 ## How It Works
 
