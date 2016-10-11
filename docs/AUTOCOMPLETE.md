@@ -29,6 +29,8 @@ For Bash: Add the following to your profile (usually `~/.bashrc`, which `~/.bash
   complete -F _awsm awsm
 ```
 
+Note: If you added it to `/etc/bash_completion.d`, make sure you test it with `source /etc/bash_completion` afterwards or else it might not work still.
+
 For Zsh: Add the following to your profile (usually `~/.zshrc`)
 
 ```sh
