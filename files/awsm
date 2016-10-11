@@ -4,6 +4,7 @@ set -euo pipefail
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $DIR/awsm-cli/_common_logging.sh
+source $DIR/awsm-cli/_common_process.sh
 
 while true; do
   case "${1:-}" in
@@ -31,24 +32,18 @@ while true; do
   esac
 done
 
-die() {
-  printf "$1\n" >&2
-  exit 1
-}
-
 command="${1:-}"
 subcommand="${2:-}"
-if [ "$command" == "pretty" ]; then
-  exec column -t -s $'\t' -n
-elif [ "$command" == "internal" ]; then
-  [ ! -t 0 ]                               || die "$(ansi.red "ERROR"): You must pipe some data into this internal subcommand \`$subcommand\`."
-  [ -f "$DIR/awsm-cli/${subcommand}.awk" ] || die "$(ansi.red "ERROR"): Internal subcommand \`$subcommand.awk\` not found."
 
+if [ "${command:0:1}" == "_" ]; then
   shift 2
-  exec "$DIR/awsm-cli/${subcommand}.awk" "$@"
+  [ ! -x "$DIR/awsm-cli/internal/${subcommand}.sh" ]  || exec "$DIR/awsm-cli/internal/${subcommand}.sh" "$@"
+  [ ! -x "$DIR/awsm-cli/internal/${subcommand}.awk" ] || exec "$DIR/awsm-cli/internal/${subcommand}.awk" "$@"
+elif [ "$command" == "pretty" ]; then
+  exec column -t -s $'\t' -n
 else
-  [ ! -z "$command" ] && [ ! -z "$subcommand" ]      || die "$(ansi.red "ERROR"): Both \`command\` and \`subcommand\` are required. See usage.\n\n$(cat "$DIR/awsm-cli/USAGE")"
-  [ -f "$DIR/awsm-cli/${command}-${subcommand}.sh" ] || die "$(ansi.red "ERROR"): AWSM does not yet support command \`$command\` and subcommand \`$subcommand\`."
+  [ ! -z "$command" ] && [ ! -z "$subcommand" ]      || process.die "$(ansi.red "ERROR"): Both \`command\` and \`subcommand\` are required. See usage.\n\n$(cat "$DIR/awsm-cli/USAGE")"
+  [ -f "$DIR/awsm-cli/${command}-${subcommand}.sh" ] || process.die "$(ansi.red "ERROR"): AWSM does not yet support command \`$command\` and subcommand \`$subcommand\`."
 
   shift 2
   exec "$DIR/awsm-cli/${command}-${subcommand}.sh" "$@"

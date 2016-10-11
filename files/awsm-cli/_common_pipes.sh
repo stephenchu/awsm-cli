@@ -15,7 +15,7 @@ script_input_with_region() {
     fi
   else
     cat /dev/stdin
-  fi | $DIR/resources_by_region.awk
+  fi | $DIR/internal/resources_by_region.awk
 }
 
 script_input_with_hosted_zone_id() {
@@ -25,7 +25,7 @@ script_input_with_hosted_zone_id() {
     $DIR/route53-list-hosted-zones.sh $(echo_if_not_blank "${!hosted_zone_id_variable_name}" "--hosted-zone-id \"${!hosted_zone_id_variable_name}\"")
   else
     cat /dev/stdin
-  fi | $DIR/resources_by_hosted_zone_id.awk
+  fi | $DIR/internal/resources_by_hosted_zone_id.awk
 }
 
 extract() {
@@ -35,6 +35,6 @@ extract() {
   if [ "$resource_type" == "region" ]; then
     awk "/^(us|ap|eu|sa)-/ { print \$1 }" | sort -u
   else
-    $DIR/extract_aws_resource_by_type.awk -v resource_type=$resource_type -v region=$region
+    $DIR/internal/extract_aws_resource_by_type.awk -v resource_type=$resource_type -v region=$region
   fi | paste --serial --delimiter ' ' -
 }
