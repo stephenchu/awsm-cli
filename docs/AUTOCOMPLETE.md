@@ -15,7 +15,6 @@ Or:
 
 ```sh
 $ ps
-admin@ip-10-254-0-159:~/toy/awsm-cli$ ps
 PID TTY          TIME CMD
 7360 pts/5    00:00:00 bash
 7371 pts/5    00:00:00 ps
@@ -42,7 +41,7 @@ For Zsh: Add the following to your profile (usually `~/.zshrc`)
 ## 3. Profit
 
 ```sh
-ip-10-254-0-159:~/toy/awsm-cli schu@master M:1 ?:1 % awsm
+$ awsm [TAB]
 _               autoscaling     cloudformation  ec2             route53
 ```
 
@@ -55,7 +54,7 @@ You may notice there is a subcommand called _underscore_ (i.e. `awsm _`). This i
 For example:
 
 ```sh
-ip-10-254-0-159:~/toy/awsm-cli schu@master M:1 ?:1 % awsm _ subcommand-actions --subcommand ec2
+$ awsm _ subcommand-actions --subcommand ec2
 describe-availability-zones
 describe-images
 describe-instances
