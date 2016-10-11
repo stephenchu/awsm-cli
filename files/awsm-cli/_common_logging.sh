@@ -1,7 +1,5 @@
 #! /bin/bash
 
-set -euo pipefail
-
 log.debug() {
   local message="${1:-}"
   if [ ${FLAGS_log_debug:-1} -eq $FLAGS_TRUE ]; then

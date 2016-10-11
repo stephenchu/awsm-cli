@@ -1,7 +1,5 @@
 #! /bin/bash
 
-set -euo pipefail
-
 headers() {
   local headers_string=$(tr --squeeze " " <<< "$1")
   [ ! -z "$FLAGS_jq" ] || string.join "\t" <<< "$headers_string"

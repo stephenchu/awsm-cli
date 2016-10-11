@@ -1,7 +1,5 @@
 #! /bin/bash
 
-set -euo pipefail
-
 ### String Functions
 string.join() {
   local delimiter="${1:-" "}"
