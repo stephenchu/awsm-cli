@@ -42,6 +42,8 @@ First you will have to install these yourself, as different versions are availab
 $ bash -c 'export DIR=$(mktemp --directory); cd $DIR && git clone --recursive https://github.com/stephenchu/awsm-cli.git .; mv files/* /usr/local/bin/'
 ```
 
+For shell auto completion, [see AUTOCOMPLETE.md here](docs/AUTOCOMPLETE.md).
+
 ## Problems `awsm-cli` Aims to Solve Over the AWS Official `awscli`
 
 ### 1. Defaults to human-readable, line-based table format instead of JSON
