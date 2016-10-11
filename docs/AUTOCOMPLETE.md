@@ -38,14 +38,12 @@ For Zsh: Add the following to your profile (usually `~/.zshrc`)
   complete -F _awsm awsm
 ```
 
-## 3. Profit
+## 3. Profit :moneybag:
 
 ```sh
 $ awsm [TAB]
 _               autoscaling     cloudformation  ec2             route53
 ```
-
-:moneybag:
 
 ## 4. Advanced
 
