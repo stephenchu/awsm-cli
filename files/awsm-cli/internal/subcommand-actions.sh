@@ -10,11 +10,11 @@ eval set -- "${FLAGS_ARGV}"
 set -euo pipefail
 
 [ -z "$FLAGS_subcommand" ] || {
-  find ./files/awsm-cli -maxdepth 1 \
-                        -type f \
-                        -name "*.sh" \
-                        ! -name "_common*.sh" \
-                        -exec basename {} '.sh' \; \
+  find $DIR/.. -maxdepth 1 \
+               -type f \
+               -name "*.sh" \
+               ! -name "_common*.sh" \
+               -exec basename {} '.sh' \; \
     | grep -E "^$FLAGS_subcommand" \
     | cut -d '-' -f 2- \
     | sort -u
