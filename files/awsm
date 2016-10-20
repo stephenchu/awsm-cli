@@ -39,8 +39,6 @@ if [ "${command:0:1}" == "_" ]; then
   shift 2
   [ ! -x "$DIR/awsm-cli/internal/${subcommand}.sh" ]  || exec "$DIR/awsm-cli/internal/${subcommand}.sh" "$@"
   [ ! -x "$DIR/awsm-cli/internal/${subcommand}.awk" ] || exec "$DIR/awsm-cli/internal/${subcommand}.awk" "$@"
-elif [ "$command" == "pretty" ]; then
-  exec column -t -s $'\t' -n
 else
   [ ! -z "$command" ] && [ ! -z "$subcommand" ]      || process.die "$(ansi.red "ERROR"): Both \`command\` and \`subcommand\` are required. See usage.\n\n$(cat "$DIR/awsm-cli/USAGE")"
   [ -f "$DIR/awsm-cli/${command}-${subcommand}.sh" ] || process.die "$(ansi.red "ERROR"): AWSM does not yet support command \`$command\` and subcommand \`$subcommand\`."
