@@ -75,7 +75,7 @@ output_jq() {
     ] | join("\t")
 EOS
   )
-  jq -C -r --arg region $region ".Images[] | ${FLAGS_jq:-$default}"
+  jq -r --arg region $region ".Images[] | ${FLAGS_jq:-$default}"
 }
 
 INPUT=$(script_input_with_region)

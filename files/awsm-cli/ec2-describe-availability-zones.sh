@@ -28,7 +28,7 @@ filters() {
 output_jq() {
   local region="$1"
   local default="[ \$region, .ZoneName ] | join(\"\t\")"
-  jq -C -r --arg region $region ".AvailabilityZones[] | ${FLAGS_jq:-$default}"
+  jq -r --arg region $region ".AvailabilityZones[] | ${FLAGS_jq:-$default}"
 }
 
 INPUT=$(script_input_with_region)

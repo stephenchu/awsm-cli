@@ -61,7 +61,7 @@ EOS
   )
 
   jq -r --arg region $region ".AutoScalingGroups $(jq_filters $region "$INPUT")" \
-    | jq -C -r --arg region $region ".[] | ${FLAGS_jq:-$default}"
+    | jq -r --arg region $region ".[] | ${FLAGS_jq:-$default}"
 }
 
 INPUT=$(script_input_with_region)

@@ -21,7 +21,7 @@ filters() {
 
 output_jq() {
   local default=".RegionName"
-  jq -C -r ".Regions[] | ${FLAGS_jq:-$default}"
+  jq -r ".Regions[] | ${FLAGS_jq:-$default}"
 }
 
 headers "RegionName"

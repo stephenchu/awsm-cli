@@ -44,7 +44,7 @@ output_jq() {
 EOS
   )
 
-  jq -C -r --arg region $region ".Vpcs[] | ${FLAGS_jq:-$default}"
+  jq -r --arg region $region ".Vpcs[] | ${FLAGS_jq:-$default}"
 }
 
 INPUT=$(script_input_with_region)
