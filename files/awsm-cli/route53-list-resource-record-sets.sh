@@ -40,7 +40,4 @@ EOS
 
 INPUT=$(script_input_with_hosted_zone_id)
 headers "HostedZoneId Name Type TTL Value"
-for hosted_zone_id in ${FLAGS_hosted_zone_id:-$(extract "hostedzone" <<< "$INPUT")}; do
-  aws route53 list-resource-record-sets $(hosted_zone_id $hosted_zone_id) \
-    | output_jq $hosted_zone_id
-done
+env_parallel -k 'aws route53 list-resource-record-sets $(hosted_zone_id {}) | output_jq {}' ::: ${FLAGS_hosted_zone_id:-$(extract "hostedzone" <<< "$INPUT")}

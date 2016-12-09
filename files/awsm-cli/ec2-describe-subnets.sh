@@ -54,7 +54,4 @@ EOS
 
 INPUT=$(script_input_with_region)
 headers "Region VpcId AvailabilityZone SubnetId CidrBlock State $(headers.tag "Name") $(headers.tags "$FLAGS_output_tags")"
-for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
-  aws ec2 --region $region describe-subnets $(filters $region "$INPUT") \
-    | output_jq $region
-done
+env_parallel -k 'aws ec2 --region {} describe-subnets $(filters {} "$INPUT") | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}

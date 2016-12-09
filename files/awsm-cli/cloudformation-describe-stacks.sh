@@ -52,7 +52,4 @@ EOS
 
 INPUT=$(script_input_with_region)
 headers "Region StackName StackStatus CreationTime LastUpdatedTime StackId $(headers.tags "$FLAGS_output_tags") StackStatusReason"
-for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
-  aws cloudformation --region $region describe-stacks $(stack_name $region "$INPUT") \
-    | output_jq $region
-done
+env_parallel -k 'aws cloudformation --region {} describe-stacks $(stack_name {} "$INPUT") | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}
