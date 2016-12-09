@@ -30,6 +30,7 @@ filters() {
 }
 
 output_jq() {
+  local region="$1"
   local default=$(cat <<EOS
     def tag_value(tag_name):
       . | values | map(
