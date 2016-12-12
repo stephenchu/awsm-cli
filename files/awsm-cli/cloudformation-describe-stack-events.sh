@@ -45,7 +45,4 @@ EOS
 
 INPUT=$(script_input_with_region)
 headers "Region StackName LogicalResourceId ResourceType ResourceStatus Timestamp EventId"
-for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
-  aws cloudformation --region $region describe-stack-events $(stack_name $region "$INPUT") \
-    | output_jq $region
-done
+env_parallel -k 'aws cloudformation --region {} describe-stack-events $(stack_name {} "$INPUT") | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}

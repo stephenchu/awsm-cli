@@ -33,7 +33,4 @@ output_jq() {
 
 INPUT=$(script_input_with_region)
 headers "Region ZoneName"
-for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
-  aws ec2 --region $region describe-availability-zones $(filters $region) \
-    | output_jq $region
-done
+env_parallel -k 'aws ec2 --region {} describe-availability-zones $(filters {}) | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}

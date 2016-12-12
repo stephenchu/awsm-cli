@@ -42,7 +42,4 @@ EOS
 
 INPUT=$(script_input_with_region)
 headers "Region ZoneName InstanceId HealthStatus LifecycleState AutoScalingGroupName LaunchConfigurationName"
-for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
-  aws autoscaling --region $region describe-auto-scaling-instances $(instance_ids $region "$INPUT") \
-    | output_jq $region
-done
+env_parallel -k 'aws autoscaling --region {} describe-auto-scaling-instances $(instance_ids {} "$INPUT") | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}

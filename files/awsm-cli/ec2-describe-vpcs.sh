@@ -49,7 +49,4 @@ EOS
 
 INPUT=$(script_input_with_region)
 headers "Region VpcId $(headers.tag "Name") $(headers.tags "$FLAGS_output_tags")"
-for region in ${FLAGS_region:-$(extract "region" <<< "$INPUT")}; do
-  aws ec2 --region $region describe-vpcs $(filters $region "$INPUT") \
-    | output_jq $region
-done
+env_parallel -k 'aws ec2 --region {} describe-vpcs $(filters {} "$INPUT") | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}
