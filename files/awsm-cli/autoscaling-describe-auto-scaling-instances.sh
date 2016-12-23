@@ -19,7 +19,13 @@ instance_ids() {
   local region="$1"
   local input="$2"
 
-  echo_if_not_blank "${FLAGS_instance_ids:-$(extract "i" $region <<< "$input")}" "--instance-ids ${FLAGS_instance_ids:-$(extract "i" $region <<< "$input")}"
+  echo "${FLAGS_instance_ids:-$(extract "i" $region <<< "$input")}"
+}
+
+instance_ids_clause() {
+  local instance_ids="$1"
+
+  echo_if_not_blank "${FLAGS_instance_ids:-$(string.join "," <<< "$instance_ids")}" "--instance-ids ${FLAGS_instance_ids:-$(string.join "," <<< "$instance_ids")}"
 }
 
 output_jq() {
@@ -42,4 +48,6 @@ EOS
 
 INPUT=$(script_input_with_region)
 headers "Region ZoneName InstanceId HealthStatus LifecycleState AutoScalingGroupName LaunchConfigurationName"
-env_parallel -k 'aws autoscaling --region {} describe-auto-scaling-instances $(instance_ids {} "$INPUT") | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}
+env_parallel -I '{region}' \
+             -k 'env_parallel -I "{ids}" -N 50 aws autoscaling --region {region} describe-auto-scaling-instances $(instance_ids_clause {ids}) ::: $(instance_ids {region} "$INPUT") | output_jq {region}' \
+             ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}
