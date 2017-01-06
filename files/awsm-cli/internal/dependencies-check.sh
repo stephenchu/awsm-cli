@@ -60,7 +60,7 @@ check_jq() {
   }
 
   version() {
-    local minimum_version="1.6"
+    local minimum_version="1.4"
     local current_version=$(jq --version | cut -d '-' -f 2)
     if [[ "$(echo -e "$minimum_version\n$current_version" | sort --unique --version-sort | tail -1)" == "$minimum_version" ]]; then
       log.error "The minimum supported version of jq is $minimum_version. Currently you have $current_version."
