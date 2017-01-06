@@ -1,5 +1,10 @@
 #! /bin/bash
 
+log.error() {
+  local message="${1:-}"
+  ansi.red "[ERROR] $message" >&2
+}
+
 log.debug() {
   local message="${1:-}"
   if [ ${FLAGS_log_debug:-1} -eq $FLAGS_TRUE ]; then
@@ -18,7 +23,7 @@ log.info() {
 
 log.warn() {
   local message="${1:-}"
-  anis.red "[WARN] $message" >&2
+  ansi.yellow "[WARN] $message" >&2
 }
 
 ansi.black()   { echo "$(tput setaf 0)$*$(tput sgr0)"; }
