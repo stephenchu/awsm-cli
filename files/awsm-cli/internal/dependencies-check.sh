@@ -119,7 +119,7 @@ check_parallel() {
   }
 
   version() {
-    local minimum_version="20170922"
+    local minimum_version="20160922"
     if ! parallel --minversion $minimum_version &> /dev/null; then
       local current_version="$(parallel --minversion $minimum_version)"
       log.error "The minimum supported version of GNU parallel is $minimum_version. Currently you have $current_version."
