@@ -53,11 +53,6 @@ filter_image_type() {
 output_jq() {
   local region="$1"
   local default=$(cat <<EOS
-    def tag_value(tag_name):
-      . | values | map(
-        select(.Key == tag_name)
-      )[0].Value;
-
     (if .Public == "true" then "public" else "private" end) as \$public |
     [
       \$region,
@@ -75,7 +70,7 @@ output_jq() {
     ] | join("\t")
 EOS
   )
-  jq -r --arg region $region ".Images[] | ${FLAGS_jq:-$default}"
+  jq -L $DIR/jq -r --arg region $region "include \"aws\"; .Images[] | ${FLAGS_jq:-$default}"
 }
 
 INPUT=$(script_input_with_region)

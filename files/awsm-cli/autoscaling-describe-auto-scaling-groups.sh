@@ -39,11 +39,6 @@ jq_filters() {
 output_jq() {
   local region="$1"
   local default=$(cat <<EOS
-    def tag_value(tag_name):
-      . | values | map(
-        select(.Key == tag_name)
-      )[0].Value;
-
     [
       \$region,
       .AutoScalingGroupName,
@@ -61,7 +56,7 @@ EOS
   )
 
   jq -r --arg region $region ".AutoScalingGroups $(jq_filters $region "$INPUT")" \
-    | jq -r --arg region $region ".[] | ${FLAGS_jq:-$default}"
+    | jq -L $DIR/jq -r --arg region $region "include \"aws\"; .[] | ${FLAGS_jq:-$default}"
 }
 
 INPUT=$(script_input_with_region)

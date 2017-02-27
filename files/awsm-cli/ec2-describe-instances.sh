@@ -32,11 +32,6 @@ filters() {
 output_jq() {
   local region="$1"
   local default=$(cat <<EOS
-    def tag_value(tag_name):
-      . | values | map(
-        select(.Key == tag_name)
-      )[0].Value;
-
     (if .PrivateDnsName == "" then null else .PrivateDnsName end) as \$private_dns_name |
     [
       \$region,
@@ -56,7 +51,7 @@ output_jq() {
 EOS
   )
 
-  jq -r --arg region $region ".Reservations[].Instances[] | ${FLAGS_jq:-$default}"
+  jq -L $DIR/jq -r --arg region $region "include \"aws\"; .Reservations[].Instances[] | ${FLAGS_jq:-$default}"
 }
 
 INPUT=$(script_input_with_region)

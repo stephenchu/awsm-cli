@@ -21,11 +21,6 @@ path_prefix() {
 
 output_jq() {
   local default=$(cat <<EOS
-    def tag_value(tag_name):
-      . | values | map(
-        select(.Key == tag_name)
-      )[0].Value;
-
     [
       .ServerCertificateId,
       .ServerCertificateName,
