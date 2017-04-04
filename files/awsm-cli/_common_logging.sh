@@ -34,3 +34,7 @@ ansi.blue()    { echo "$(tput setaf 4)$*$(tput sgr0)"; }
 ansi.magenta() { echo "$(tput setaf 5)$*$(tput sgr0)"; }
 ansi.cyan()    { echo "$(tput setaf 6)$*$(tput sgr0)"; }
 ansi.white()   { echo "$(tput setaf 7)$*$(tput sgr0)"; }
+
+
+stderr.echo() { echo "$1" >&2; }
+stdout.echo() { echo "$1"; }
