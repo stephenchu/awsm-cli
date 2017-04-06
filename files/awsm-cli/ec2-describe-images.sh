@@ -53,7 +53,7 @@ filter_image_type() {
 output_jq() {
   local region="$1"
   local default=$(cat <<EOS
-    (if .Public == "true" then "public" else "private" end) as \$public |
+    (if .Public then "public" else "private" end) as \$public |
     [
       \$region,
       .ImageId,
