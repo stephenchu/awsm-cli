@@ -24,9 +24,17 @@ filters() {
 
   [ -z "${FLAGS_filters}" ]                                                  || filters="$filters $FLAGS_filters"
   [ -z "${FLAGS_filter_vpc_id:-$(extract "vpc" $region <<< "$input")}" ]     || filters="$filters Name=vpc-id,Values=${FLAGS_filter_vpc_id:-$(extract "vpc" $region <<< "$input" | string.join ",")}"
-  [ -z "${FLAGS_filter_instance_ids:-$(extract "i" $region <<< "$input")}" ] || filters="$filters Name=instance-id,Values=${FLAGS_filter_instance_ids:-$(extract "i" $region <<< "$input" | string.join ",")}"
+  # [ -z "${FLAGS_filter_instance_ids:-$(extract "i" $region <<< "$input")}" ] || filters="$filters Name=instance-id,Values=${FLAGS_filter_instance_ids:-$(extract "i" $region <<< "$input" | string.join ",")}"
 
   echo_if_not_blank "$filters" "--filters ${filters}"
+}
+
+instance_ids_clause() {
+  local region="$1"
+  local input="$2"
+  local instance_ids="$(extract "i" $region <<< "$input")"
+
+  echo_if_not_blank "${FLAGS_filter_instance_ids:-$(string.join "," <<< "$instance_ids")}" "--instance-ids ${FLAGS_filter_instance_ids:-$(string.join "," <<< "$instance_ids")}"
 }
 
 output_jq() {
@@ -56,4 +64,6 @@ EOS
 
 INPUT=$(script_input_with_region)
 headers "Region $(headers.tag "Name") InstanceId AvailabilityZone InstanceType State PublicIpAddress PrivateIpAddress PrivateDnsName VpcId ImageId LaunchTime $(headers.tags "$FLAGS_output_tags")"
-env_parallel -k 'aws ec2 --region {} describe-instances $(filters {} "$INPUT") | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}
+env_parallel -I '{region}' \
+             -k 'env_parallel -I "{ids}" -N 200 aws ec2 --region {region} describe-instances $(instance_ids_clause {region} {ids}) $(filters {region} "$INPUT") | output_jq {region}' \
+             ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}
