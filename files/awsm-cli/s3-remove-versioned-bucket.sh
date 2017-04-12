@@ -22,8 +22,9 @@ s3.does_bucket_exists() {
 s3.fetch_versioned_objects() {
   aws s3api list-object-versions \
       --bucket "$FLAGS_bucket" \
-      $(echo_if_not_blank "$page_token" "--starting-token $page_token") \
-      --max-items 1000
+      --max-items 5 \
+      --encoding-type url \
+      $(echo_if_not_blank "$page_token" "--starting-token $page_token")
 }
 
 
@@ -31,22 +32,46 @@ s3.delete_versioned_objects() {
   local page_token="${1:-}"
 
   local objects_json="$(s3.fetch_versioned_objects "$page_token")"
-  local delete_versions_request_json="$(jq -r '
-    {
-      Quiet: true,
-      Objects: (.Versions // []) | map({ "Key": .Key, "VersionId": .VersionId })
-    }
-  ' <<< "$objects_json")"
-  local delete_deletemarkers_request_json="$(jq -r '
-    {
-      Quiet: true,
-      Objects: (.DeleteMarkers // []) | map({ "Key": .Key, "VersionId": .VersionId })
-    }
-  ' <<< "$objects_json")"
-
+  local versions_json="$(jq '.Versions // []' <<< "$objects_json")"
+  local delete_markers_json="$(jq '.DeleteMarkers // []' <<< "$objects_json")"
+  
   printf "." >&2
-  jq -e '.Objects | length > 0' <<< "$delete_versions_request_json" |>/dev/null      && aws s3api delete-objects --bucket "$FLAGS_bucket" --delete file://<(echo "$delete_versions_request_json")
-  jq -e '.Objects | length > 0' <<< "$delete_deletemarkers_request_json" |>/dev/null && aws s3api delete-objects --bucket "$FLAGS_bucket" --delete file://<(echo "$delete_deletemarkers_request_json")
+  # stderr.echo "$objects_json"
+
+  if jq -e 'length > 0' <<< "$versions_json" &>/dev/null; then
+    # Contains maximum `--max-items` items
+    local versions_request_json="$(jq -r '
+      {
+        Quiet: true,
+        Objects: map({ "Key": .Key, "VersionId": .VersionId })
+      }
+    ' <<< "$versions_json")"
+    # aws s3api delete-objects --bucket "$FLAGS_bucket" --delete file://<(echo "$versions_request_json") || { echo "$versions_request_json" >/tmp/1.json; }
+  fi
+
+  if jq -e 'length > 0' <<< "$delete_markers_json" &>/dev/null; then
+    # May contain potentially > `--max-items` items
+    jq -r '[.Key, .VersionId] | join("\t")' <<< "$delete_markers_json" | \
+      parallel -N 1000 jq --arg key {1} --arg version_id {2} '
+      {
+        Quiet: true,
+        Objects: map({ "Key": .Key, "VersionId": .VersionId })
+      }
+
+      '
+
+
+
+    local delete_markers_request_json="$(jq -r '
+      {
+        Quiet: true,
+        Objects: map({ "Key": .Key, "VersionId": .VersionId })
+      }
+    ' <<< "$delete_markers_json")"
+    # aws s3api delete-objects --bucket "$FLAGS_bucket" --delete file://<(echo "$delete_deletemarkers_request_json") || { echo "$delete_deletemarkers_request_json" >/tmp/2.json; }
+  fi
+
+
 
   local next_page_token="$(jq -r '.NextToken // ""' <<< "$objects_json")"
   echo -n "$next_page_token"
