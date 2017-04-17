@@ -11,6 +11,7 @@ DEFINE_boolean 'filter-aki' $FLAGS_FALSE 'Filter for only AKI results' ''
 DEFINE_boolean 'filter-ari' $FLAGS_FALSE 'Filter for only ARI results' ''
 DEFINE_boolean 'filter-is-public' $FLAGS_FALSE 'Filter for only public images' ''
 DEFINE_boolean 'filter-is-private' $FLAGS_FALSE 'Filter for only private images' ''
+DEFINE_boolean 'header' $FLAGS_FALSE 'Display header row' ''
 DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
 DEFINE_string  'output-tags' '' 'Output any additional tags' 't'
 DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
@@ -74,5 +75,5 @@ EOS
 }
 
 INPUT=$(script_input_with_region)
-headers "Region ImageId State OwnerId Hypervisor VirtualizationType Architecture RootDeviceType Public CreationDate ImageLocation $(headers.tags "$FLAGS_output_tags")"
+[ $FLAGS_header -eq $FLAGS_TRUE ] && headers "Region ImageId State OwnerId Hypervisor VirtualizationType Architecture RootDeviceType Public CreationDate ImageLocation $(headers.tags "$FLAGS_output_tags")"
 env_parallel -k 'aws ec2 --region {} describe-images $(filters {} "$INPUT") | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}
