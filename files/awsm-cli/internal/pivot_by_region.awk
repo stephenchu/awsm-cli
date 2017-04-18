@@ -27,9 +27,10 @@
         if (aws_resource_type ~ /^(aki|ami|ari|eipalloc|elb|subnet|i|vpc)$/) {
           aws_resource_identifier = $i
           if (length(results[region, aws_resource_type]) == 0)
-            results[region, aws_resource_type] = results[region, aws_resource_type] aws_resource_identifier
+            results[region, aws_resource_type] = aws_resource_identifier
           else
-            results[region, aws_resource_type] = results[region, aws_resource_type] " " aws_resource_identifier
+            if (index(results[region, aws_resource_type], aws_resource_identifier) == 0)
+              results[region, aws_resource_type] = results[region, aws_resource_type] " " aws_resource_identifier
         }
       }
     }
