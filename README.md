@@ -11,7 +11,7 @@ Mailing list: https://groups.google.com/forum/#!forum/awsm-cli-users
 ```sh
 # Find ec2 instances within all us-west-2 vpcs named 'production' alike:
 
-$ awsm ec2 describe-vpcs -r us-west-2 | grep production | awsm ec2 describe-instances
+$ awsm ec2 describe-vpcs -r us-west-2 | grep -w production | awsm ec2 describe-instances
 Region     tag:Name  InstanceId           AvailabilityZone  InstanceType  State    PublicIpAddress  PrivateIpAddress  PrivateDnsName                              VpcId         ImageId       LaunchTime                
 us-west-2  Foo       i-015ef79784b536dbe  us-west-2a        r3.xlarge     running  n/a              10.42.17.213      ip-10-42-17-213.us-west-2.compute.internal  vpc-d85397bc  ami-1411c474  2016-08-24T20:39:01.000Z
 
@@ -34,7 +34,19 @@ First you will have to install these yourself, as different versions are availab
 * [awscli](https://github.com/aws/aws-cli#installation) `>= 1.10.63`
 * [jq](https://stedolan.github.io/jq/download/) `>= 1.6`
 * [GNU awk](https://www.gnu.org/software/gawk/) `>= 4.1.1`
+* [GNU parallel](https://www.gnu.org/software/parallel/) `>= 20160922`
 
+Tip: Run `awsm _ dependencies-check` to ensure you have a working environment:
+
+```sh
+$ awsm _ dependencies-check
+[INFO] Checking for dependencies used by awsm-cli...
+[INFO] Your awscli is working properly.
+[INFO] Your jq is working properly.
+[INFO] Your GNU awk is working properly.
+[INFO] Your GNU parallel is working properly.
+[INFO] Summary: Awesome! All required dependencies are installed correctly. Enjoy awsm-cli!
+```
 
 ### Bash
 
@@ -104,7 +116,8 @@ Unix pipes is simply the most intuitive and error-free way in command line to av
 * All subcommands support printing the underlying native `awscli` executed commands via `--log-aws-cli`
 * All subcommands support printing the underlying `jq` filter used via `--log-jq`
 * All region-specific subcommands support displaying multiple regions' worth of data via `--region "us-west-1 us-west-2"`, something that takes multiple page loads on the AWS web console
-* Nicely align any `awsm-cli` output using `column` by piping into `| awsm pretty`.
+* Nicely align any `awsm-cli` output using `column` by piping any stdout into `| awsm _ column`.
+* Supports multi-column sort piping any stdout into `| awsm _ sort -k 2,2 -k 3,3`.
 
 
 ## Supported AWS Subcommands
@@ -112,11 +125,24 @@ Unix pipes is simply the most intuitive and error-free way in command line to av
 Look in [files/awsm-cli/*.sh](files/awsm-cli), or, better yet, run:
 
 ```sh
-$ for subcommand in $(awsm _ subcommands | grep -v '_'); do
-  (
-    printf "$subcommand:\n"; awsm _ subcommand-actions -s $subcommand
-  ) | paste -d ' ' -s
-done
+$ aws _ subcommands
+_
+autoscaling
+cloudformation
+ec2
+.
+.
+.
+
+$ aws _ subcommand-actions --subcommand ec2
+describe-availability-zones
+describe-images
+describe-instances
+describe-instance-status
+describe-regions
+.
+.
+.
 ```
 
 ## How It Works
