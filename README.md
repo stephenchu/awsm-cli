@@ -145,6 +145,8 @@ describe-regions
 .
 ```
 
+Or use shell autocomplete to discover. See [AUTOSCOMPLETE.md](https://github.com/stephenchu/awsm-cli/blob/master/docs/AUTOCOMPLETE.md).
+
 ## How It Works
 
 See [DESIGN.md](docs/DESIGN.md).
