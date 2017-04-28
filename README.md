@@ -125,7 +125,7 @@ Unix pipes is simply the most intuitive and error-free way in command line to av
 Look in [files/awsm-cli/*.sh](files/awsm-cli), or, better yet, run:
 
 ```sh
-$ aws _ subcommands
+$ awsm _ subcommands
 _
 autoscaling
 cloudformation
@@ -134,7 +134,7 @@ ec2
 .
 .
 
-$ aws _ subcommand-actions --subcommand ec2
+$ awsm _ subcommand-actions --subcommand ec2
 describe-availability-zones
 describe-images
 describe-instances
