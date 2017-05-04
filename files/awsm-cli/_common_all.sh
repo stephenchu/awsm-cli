@@ -6,4 +6,5 @@ source $DIR/_common_cmd.sh
 source $DIR/_common_logging.sh
 source $DIR/_common_pipes.sh
 source $DIR/_common_utils.sh
+source $DIR/_common_process.sh
 source $(which env_parallel.bash)

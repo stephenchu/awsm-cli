@@ -15,7 +15,7 @@ set -euo pipefail
                -name "*.sh" \
                ! -name "_common*.sh" \
                -exec basename {} '.sh' \; \
-    | grep -E "^$FLAGS_subcommand" \
+    | grep -Fw "$FLAGS_subcommand" \
     | cut -d '-' -f 2- \
     | sort -u
 }
