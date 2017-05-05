@@ -1,3 +1,6 @@
 [submodule "files/awsm-cli/vendor/shflags"]
 	path = files/awsm-cli/vendor/shflags
 	url = https://github.com/kward/shflags.git
+[submodule "files/awsm-cli/vendor/docopts"]
+	path = files/awsm-cli/vendor/docopts
+	url = https://github.com/docopt/docopts.git
