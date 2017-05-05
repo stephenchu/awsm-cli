@@ -66,7 +66,7 @@ JSON is great for machine-to-machine parseability and is reasonably humanly read
 
 ### 2. Changing its default output format is still humanly unreadable
 
-The `awscli` option `--option table` yields an ugly [table border](http://docs.aws.amazon.com/cli/latest/userguide/controlling-output.html#table-output). Using `--option text` yields a difficult-to-parse multi-line [textual output](http://docs.aws.amazon.com/cli/latest/userguide/controlling-output.html#text-output) as well.
+The `awscli` option `--output table` yields an ugly [table border](http://docs.aws.amazon.com/cli/latest/userguide/controlling-output.html#table-output). Using `--output text` yields a difficult-to-parse multi-line [textual output](http://docs.aws.amazon.com/cli/latest/userguide/controlling-output.html#text-output) as well.
 
 With `awsm-cli`, you append `--jq '.'` (a "dot" means everything in [jq](https://stedolan.github.io/jq/tutorial/)) to swiftly change from tabular format to JSON format that the human-readable results are derived from, plus any JSON filtering/transforming you wish to alter your results using the [powerful features](https://stedolan.github.io/jq/manual/) of Jq:
 
