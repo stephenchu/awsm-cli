@@ -4,7 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 set -euo pipefail
 source $DIR/_common_all.sh
-source /usr/local/bin/env_parallel.bash
+source $(which env_parallel.bash)
 
 eval "$($DIR/vendor/docopts/docopts -h - : "$@" <<EOF
 Usage: $0 -r <region> -i <ami-id> [options]
