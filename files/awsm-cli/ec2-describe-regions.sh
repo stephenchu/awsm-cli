@@ -1,30 +1,41 @@
 #! /bin/bash
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-source $DIR/vendor/shflags/src/shflags
-DEFINE_string  'regions' '' 'A space-delimited list of AWS regions. e.g. \"us-east-1 us-west-1\"' 'r'
-DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
-DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Log aws-cli API calls' ''
-DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
-FLAGS "$@" || exit $?
-eval set -- "${FLAGS_ARGV}"
-[ $FLAGS_help -eq $FLAGS_FALSE ] || { exit 1; }
 
 set -euo pipefail
 source $DIR/_common_all.sh
+source $(which env_parallel.bash)
 
-filters() {
+eval "$($DIR/vendor/docopts/docopts -h - : "$@" <<EOF
+Usage: ec2-describe-regions [-r <region>...] [options]
+
+Options:
+    -r --region=<region>...                AWS region(s) to describe
+    --help                                 Show help options
+
+Global Options:
+    --jq=<jq_filter>                       Turns tabular output into JSON output, with a JQ filter already applied  [default: .RegionName]
+    --log-awscli                           Logs every awscli command line runs to stderr. [default: false]
+    --log-jq                               Logs every jq command runs to stderr.          [default: false]
+
+Environment Variables:
+    AWSM_LOG_AWS_CLI                       Logs every awscli command line runs to stderr. Same as \`--log-awscli\` but at a global level.
+    AWSM_LOG_JQ                            Logs every jq command runs to stderr. Same as \`--log-jq\` but at a global level.
+EOF
+)"
+
+aws:filters() {
   local input="$1"
+  local regions="$(string.join " " <<< "${region[@]}")"
 
-  echo_if_not_blank "${FLAGS_regions:-$(extract "region" <<< "$INPUT")}" "--region-names ${FLAGS_regions:-$(extract "region" <<< "$INPUT")}"
+  echo_if_not_blank "${regions:-}" "--region-names ${regions}"
 }
 
-output_jq() {
-  local default=".RegionName"
-  jq -r ".Regions[] | ${FLAGS_jq:-$default}"
+output:jq() {
+  jq -r ".Regions[] | ${jq:-".RegionName"}"
 }
 
-headers "RegionName"
-INPUT=$(script_input_with_region "FLAGS_regions")
-aws ec2 --region us-west-2 describe-regions $(filters "$INPUT") \
-  | output_jq
+output:headers "RegionName"
+INPUT="$(stdin:aws-regional-input)"
+aws ec2 --region us-west-2 describe-regions $(aws:filters "$INPUT") \
+  | output:jq

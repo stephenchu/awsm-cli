@@ -2,12 +2,36 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
+stdin:is-interactive() {
+  [ -t 0 ]
+}
+
+stdin:aws-regional-input() {
+  if stdin:is-interactive; then
+    if [ "${region+defined}" ]; then
+      printf "%q\n" ${region[@]} | tr -d " '"
+    else
+      $DIR/ec2-describe-regions.sh
+    fi
+  else
+    cat /dev/stdin
+  fi | $DIR/internal/pivot_by_region.awk
+}
+
+
+
+
+
+
+
+
+
 # $1 - Name of shflags REGION variable, so that caller can customize their
 #      shflags name to plural form (e.g. FLAGS_regions).
 script_input_with_region() {
   local region_variable_name="${1:-"FLAGS_region"}"
 
-  if [ -t 0 ]; then
+  if stdin:is-interactive; then
     if [ "${!region_variable_name}+defined" ]; then
       echo "${!region_variable_name}" | xargs printf "%s\n"
     else
