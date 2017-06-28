@@ -11,7 +11,7 @@ stdin:aws-regional-input() {
     if [ "${region+defined}" ]; then
       printf "%q\n" ${region[@]} | tr -d " '"
     else
-      $DIR/ec2-describe-regions.sh
+      $DIR/ec2-describe-regions.sh < /dev/null
     fi
   else
     cat /dev/stdin
@@ -19,6 +19,16 @@ stdin:aws-regional-input() {
 }
 
 
+stdin:extract() {
+  local resource_type="$1"
+  local region="${2:-undefined}"
+
+  if [ "$resource_type" == "region" ]; then
+    awk '/^(us|eu|ap|sa|ca)-(north|south|)(east|central|west)-[[:digit:]][[:space:]]+/ { print $1 }' | sort -u
+  else
+    $DIR/internal/extract_aws_resource_by_type.awk -v resource_type=$resource_type -v region=$region
+  fi | paste --serial --delimiter ' ' -
+}
 
 
 

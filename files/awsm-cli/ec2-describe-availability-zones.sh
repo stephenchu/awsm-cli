@@ -1,36 +1,45 @@
 #! /bin/bash
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-source $DIR/vendor/shflags/src/shflags
-DEFINE_string  'region' '' 'AWS region' 'r'
-DEFINE_string  'filters' '' 'The raw \`--filters\` attribute used with the AWS command' 'f'
-DEFINE_string  'filter-zone-names' '' 'The list of availability zone names' 'z'
-DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
-DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
-DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
-FLAGS "$@" || exit $?
-eval set -- "${FLAGS_ARGV}"
-[ $FLAGS_help -eq $FLAGS_FALSE ] || { exit 1; }
 
 set -euo pipefail
 source $DIR/_common_all.sh
+source $(which env_parallel.bash)
 
-filters() {
+eval "$($DIR/vendor/docopts/docopts -h - : "$@" <<EOF
+Usage: ec2-describe-availability-zones [-r <region>...] [-z <availability-zone>...] [options]
+
+Options:
+    -r --region=<region>...                AWS region(s) to describe the availability zones for [required: as argument or stdin]
+    -z --availability-zone=<zone>...       AWS availability zone(s) to describe
+    -f --filter=<filter>...                Passed as-is to the \`--filters\` option in awscli command
+    --help                                 Show help options
+
+Other Options:
+    --jq=<jq_filter>                       Turns tabular output into JSON output, with a JQ filter already applied  [default: [\$region, .ZoneName] | join("\\t")]
+    --log-awscli                           Logs every awscli command line runs to stderr [default: false]
+    --log-jq                               Logs every jq command runs to stderr          [default: false]
+EOF
+)"
+
+aws:filters() {
   local region="$1"
-  local filters=""
+  local input="$2"
+  local filter_values=""
 
-  [ -z "${FLAGS_filters}" ]           || filters="$filters $FLAGS_filters"
-  [ -z "${FLAGS_filter_zone_names}" ] || filters="$filters Name=zone-name,Values=${FLAGS_filter_zone_names}"
+  local zones="${availability_zone[@]:-$(stdin:extract "az" $region <<< "$input")}"
 
-  echo_if_not_blank "$filters" "--filters ${filters}"
+  [ -z "$(string.join " " <<< "${filter[@]}")" ] || filter_values="$filter_values $(string.join " " <<< "${filter[@]}")"
+  [ -z "$(string.join "," <<< "$zones")" ]       || filter_values="$filter_values Name=zone-name,Values=$(string.join "," <<< "$zones")"
+
+  echo_if_not_blank "$filter_values" "--filters ${filter_values}"
 }
 
-output_jq() {
+output:jq() {
   local region="$1"
-  local default="[ \$region, .ZoneName ] | join(\"\t\")"
-  jq -r --arg region $region ".AvailabilityZones[] | ${FLAGS_jq:-$default}"
+  jq -r --arg region $region ".AvailabilityZones[] | $jq"
 }
 
-INPUT=$(script_input_with_region)
-headers "Region ZoneName"
-env_parallel -k 'aws ec2 --region {} describe-availability-zones $(filters {}) | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}
+INPUT="$(stdin:aws-regional-input)"
+output:headers "Region ZoneName"
+env_parallel 'aws ec2 --region {} describe-availability-zones $(aws:filters {} "$INPUT") | output:jq {}' ::: ${region[@]:-$(stdin:extract "region" <<< "$INPUT")}
