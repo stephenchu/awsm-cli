@@ -58,5 +58,5 @@ EOS
 }
 
 INPUT="$(stdin:aws-regional-input)"
-output:headers "Region VpcId AvailabilityZone SubnetId CidrBlock State $(headers.tag "Name") $(headers.tags "${tag[@]:-}")"
+output:headers "Region VpcId AvailabilityZone SubnetId CidrBlock State $(headers.tag "Name") $(headers.tags "${tag[@]}")"
 env_parallel -k 'aws ec2 --region {} describe-subnets $(aws:filters {} "$INPUT") | output:jq {}' ::: ${region[@]:-$(stdin:extract "region" <<< "$INPUT")}
