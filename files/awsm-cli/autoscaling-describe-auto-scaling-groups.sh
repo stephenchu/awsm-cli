@@ -1,42 +1,61 @@
 #! /bin/bash
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-source $DIR/vendor/shflags/src/shflags
-DEFINE_string  'region' '' 'AWS region(s)' 'r'
-DEFINE_string  'auto-scaling-group-names' '' 'ASG name(s) to look up' 'a'
-DEFINE_string  'filter-vpc-id' '' 'VPC Id' 'v'
-DEFINE_string  'jq' '' 'Output \`jq\` filter' 'j'
-DEFINE_string  'output-tags' '' 'Output any additional tags' 't'
-DEFINE_boolean  'log-aws-cli' $FLAGS_FALSE 'Show aws-cli API calls info made' ''
-DEFINE_boolean  'log-jq' $FLAGS_FALSE 'Log jq calls' ''
-FLAGS "$@" || exit $?
-eval set -- "${FLAGS_ARGV}"
-[ $FLAGS_help -eq $FLAGS_FALSE ] || { exit 1; }
-
 set -euo pipefail
 source $DIR/_common_all.sh
+source $(which env_parallel.bash)
 
-auto_scaling_group_names() {
-  echo_if_not_blank "$FLAGS_auto_scaling_group_names" "--auto-scaling-group-names $FLAGS_auto_scaling_group_names"
+eval "$($DIR/vendor/docopts/docopts -h - : "$@" <<EOF
+Usage: autoscaling-describe-auto-scaling-groups [-r <region>...] [(-v <vpc-id>... | -s <subnet-id>...)] [options]
+
+Options:
+    -r --region=<region>...                 AWS region(s) in which the autoscaling group(s) are in [required: as argument or stdin]
+    -n --auto-scaling-group-name=<name>...  AWS auto-scaling-group-name(s) to describe
+    -v --vpc-id=<vpc-id>...                 AWS vpc-id(s) for the autoscaling group(s)' subnets are under. A shorthand to include all of the vpc(s)' subnet-id(s)
+    -s --subnet-id=<subnet-id>...           AWS subnet-id(s) for the autoscaling group(s)
+    -t --tag=<tag>...                       Any additional resource tags to display in the output
+    --help                                  Show help options
+
+Other Options:
+    --jq=<jq_filter>                       Turns tabular output into JSON output, with a JQ filter already applied
+    --log-awscli                           Logs every awscli command line runs to stderr [default: false]
+    --log-jq                               Logs every jq command runs to stderr          [default: false]
+EOF
+)"
+
+aws:auto_scaling_group_names() {
+  echo_if_not_blank "${auto_scaling_group_name[@]}" "--auto-scaling-group-names ${auto_scaling_group_name[@]}"
 }
 
-jq_filters() {
+jq:filter() {
   local region="$1"
   local input="$2"
-  local filters=""
+  local filter_values=""
 
-  [ -z "${FLAGS_filter_vpc_id:-$(extract "vpc" $region <<< "$input")}" ] || {
-    local vpc_ids="${FLAGS_filter_vpc_id:-$(extract "vpc" $region <<< "$input")}"
-    local subnet_ids=$(extract "subnet" $region <<< "$($DIR/ec2-describe-subnets.sh -r $region -v "$vpc_ids" < /dev/null | script_input_with_region)")
+  local vpc_ids="${vpc_id[@]:-$(stdin:extract "vpc" $region <<< "$input")}"
+  local subnet_ids="${subnet_id[@]:-$(stdin:extract "subnet" $region <<< "$input")}"
 
-    filters="$filters | ($(json.to_array <<< "$subnet_ids")) as \$vpc_subnets | map(select(  (.VPCZoneIdentifier | split(\",\")) as \$asg_subnets | ( \$vpc_subnets | contains(\$asg_subnets) )  ))"
+  [ -z "$vpc_ids" ] || {
+    local vpc_subnet_ids_input="$($DIR/ec2-describe-subnets.sh --region $region --vpc-id "$vpc_ids" < /dev/null | stdin:aws-regional-input)"
+    subnet_ids="$(stdin:extract "subnet" $region <<< "$vpc_subnet_ids_input")"
+    subnet_ids="${subnet_ids:-"no-subnets-found-in-${vpc_ids}"}"
   }
-  [ -z "$(extract "subnet" $region <<< "$input")" ] || filters="$filters | ($(extract "subnet" $region <<< "$input" | json.to_array)) as \$vpc_subnets | map(select(  (.VPCZoneIdentifier | split(\",\")) as \$asg_subnets | ( \$vpc_subnets | contains(\$asg_subnets) )  ))"
 
-  echo_if_not_blank "$filters" "$filters"
+  [ -z "$subnet_ids" ] || {
+    filter_values+=" | ($(json.to_array <<< "$subnet_ids")) as \$vpc_subnets"
+    filter_values+=' |
+      map(
+        select(
+          (.VPCZoneIdentifier | split(",")) as $asg_subnets | ($vpc_subnets | contains($asg_subnets))
+        )
+      )
+    '
+  }
+
+  echo_if_not_blank "$filter_values" "$filter_values"
 }
 
-output_jq() {
+output:jq() {
   local region="$1"
   local default=$(cat <<EOS
     [
@@ -49,16 +68,16 @@ output_jq() {
       (.MaxSize | tostring),
       (.DesiredCapacity | tostring),
       .CreatedTime,
-      $(output.tags "$FLAGS_output_tags"),
+      $(output.tags "${tag[@]}"),
       (.Instances | map(.InstanceId) | join("\t"))
     ] | join("\t")
 EOS
   )
 
-  jq -r --arg region $region ".AutoScalingGroups $(jq_filters $region "$INPUT")" \
-    | jq -L $DIR/jq -r --arg region $region "include \"aws\"; .[] | ${FLAGS_jq:-$default}"
+  jq -r --arg region $region ".AutoScalingGroups $(jq:filter $region "$INPUT")" \
+    | jq -L $DIR/jq -r --arg region $region "include \"aws\"; .[] | ${jq:-$default}"
 }
 
-INPUT=$(script_input_with_region)
-headers "Region AutoScalingGroupName LaunchConfigurationName ZoneName VPCZoneIdentifier MinSize MaxSize DesiredCapacity CreatedTime $(headers.tags "$FLAGS_output_tags") Instances..."
-env_parallel -k 'aws autoscaling --region {} describe-auto-scaling-groups $(auto_scaling_group_names) | output_jq {}' ::: ${FLAGS_region:-$(extract "region" <<< "$INPUT")}
+INPUT="$(stdin:aws-regional-input)"
+output:headers "Region AutoScalingGroupName LaunchConfigurationName ZoneName VPCZoneIdentifier MinSize MaxSize DesiredCapacity CreatedTime $(headers.tags "${tag[@]}") Instances..."
+env_parallel -k 'aws autoscaling --region {} describe-auto-scaling-groups $(aws:auto_scaling_group_names) | output:jq {}' ::: ${region[@]:-$(stdin:extract "region" <<< "$INPUT")}
