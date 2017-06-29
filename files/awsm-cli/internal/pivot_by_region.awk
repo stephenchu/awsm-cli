@@ -30,7 +30,7 @@
           aws_resource_type = parts[1]
           aws_resource_identifier = $i
         } else {
-          next
+          continue
         }
 
         if (length(results[region, aws_resource_type]) == 0)
