@@ -16,7 +16,7 @@ Options:
     --help                                 Show help options
 
 Other Options:
-    --jq=<jq_filter>                       Turns tabular output into JSON output, with a JQ filter already applied  [default: [\$region, .ZoneName] | join("\\t")]
+    --jq=<jq_filter>                       Turns tabular output into JSON output, with a JQ filter already applied
     --log-awscli                           Logs every awscli command line runs to stderr [default: false]
     --log-jq                               Logs every jq command runs to stderr          [default: false]
 EOF
@@ -37,7 +37,9 @@ aws:filters() {
 
 output:jq() {
   local region="$1"
-  jq -r --arg region $region ".AvailabilityZones[] | $jq"
+  local default='[$region, .ZoneName] | join("\t")'
+
+  jq -r --arg region $region ".AvailabilityZones[] | ${jq:-$default"}"
 }
 
 INPUT="$(stdin:aws-regional-input)"
