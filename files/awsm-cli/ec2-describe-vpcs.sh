@@ -13,7 +13,7 @@ Options:
     -r --region=<region>...                AWS region(s) in which the vpc(s) are in [required: as argument or stdin]
     -i --vpc-id=<vpc-id>...                AWS vpc-id(s) to describe
     -f --filter=<filter>...                Passed as-is to the \`--filters\` option in awscli command
-    -t --tag=<tag>...                      Any additional tags on the vpc(s) to display in the output
+    -t --tag=<tag>...                      Any additional resource tags to display in the output
     --help                                 Show help options
 
 Other Options:
@@ -42,7 +42,7 @@ output:jq() {
     [
       \$region,
       .VpcId,
-      (.Tags | tag_value("Name")) // "n/a",
+      $(output.tag "Name"),
       $(output.tags "${tag[@]}")
     ] | join("\t")
 EOS
