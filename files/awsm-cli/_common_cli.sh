@@ -5,7 +5,7 @@ headers() {
   [ ! -z "$FLAGS_jq" ] || string.join "\t" <<< "$headers_string"
 }
 output:headers() {
-  local headers_string=$(tr --squeeze " " <<< "$1")
+  local headers_string="$(tr --squeeze " " <<< "$1")"
   [ ! -z "$jq" ] || string.join "\t" <<< "$headers_string"
 }
 
